@@ -66,11 +66,30 @@ coefficients and returns a solution in two double planes.
 
 You need a Linux system with:
 
-- a matching GPU driver and vendor toolkit;
-- a matching XianzhiKrylov package;
+- a GPU driver compatible with the vendor runtime required by the package;
+- the GPU vendor runtime libraries required by the package;
+- a compatible XianzhiKrylov package;
 - a C compiler;
 - GNU Make;
 - a valid XianzhiKrylov license for the selected GPU.
+
+Here, “matching” or “compatible” means all of the following:
+
+| Item | What to check |
+| --- | --- |
+| CPU architecture | Matches the package, for example `x86_64`. |
+| Linux C library | Meets the minimum glibc version stated in the package documentation. |
+| GPU vendor and backend | The package backend is CUDA, HIP, MUSA, SYCL, OpenCL, HCR, or another documented backend that supports the installed GPU. |
+| GPU architecture | The GPU model or compiled target is listed as supported by the package, such as a CUDA SM target or Hygon `gfx` target. |
+| Vendor runtime | The installed CUDA, DTK, MUSA, SYCL, OpenCL, or HCR runtime belongs to a version compatible with the package. |
+| Driver | The installed driver supports the required vendor runtime and exposes the selected GPU. |
+
+The package documentation is authoritative for version-specific and
+architecture-specific support. A newer vendor runtime is not automatically
+compatible unless the package documentation says so.
+
+The license is a separate requirement: it must match the machine, GPU, and
+product for which it was issued.
 
 When the extracted XianzhiKrylov package already contains `include/`, `lib/`,
 and `samples/`, no additional build system is required. CMake is not required.
