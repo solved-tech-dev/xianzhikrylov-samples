@@ -2,10 +2,6 @@
 #include "sample_common.h"
 #include <stdio.h>
 
-#ifndef XK_SAMPLE_BACKEND
-#error "Build with -DXK_SAMPLE_BACKEND=<backend value>"
-#endif
-
 static int xk_verify_dd(
     const xk_matrix *a,
     const double *values_high,
@@ -57,8 +53,8 @@ static int xk_verify_dd(
 int main(int argc, char **argv)
 {
     const char *matrix_path =
-        argc > 1 ? argv[1] : "data/diffusion_1m.csrpat";
-    const char *json_path = argc > 2 ? argv[2] : "solver.json";
+        argc > 1 ? argv[1] : "../matrices/diffusion_1m.csrpat";
+    const char *json_path = argc > 2 ? argv[2] : "config.json";
     xk_matrix matrix = {0};
     xianzhikrylov_system_data system = {0};
     xianzhikrylov_solution output = {0};
@@ -158,7 +154,7 @@ int main(int argc, char **argv)
         xk_input(rhs_low, (size_t)matrix.h.rows * sizeof(double));
 
     status = xianzhikrylov_init(
-        XK_SAMPLE_BACKEND, 0, json_path, &handle);
+        XIANZHIKRYLOV_BACKEND_AUTO, 0, json_path, &handle);
     if (status != XIANZHIKRYLOV_SUCCESS) {
         fprintf(stderr, "init status=%d\n", (int)status);
         rc = 1;

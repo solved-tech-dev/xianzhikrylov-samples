@@ -2,14 +2,10 @@
 #include "sample_common.h"
 #include <stdio.h>
 
-#ifndef XK_SAMPLE_BACKEND
-#error "Build with -DXK_SAMPLE_BACKEND=<backend value>"
-#endif
-
 int main(int argc, char **argv)
 {
-    const char *matrix_path = argc > 1 ? argv[1] : "data/transport_1m.csrpat";
-    const char *json_path = argc > 2 ? argv[2] : "solver.json";
+    const char *matrix_path = argc > 1 ? argv[1] : "../matrices/transport_1m.csrpat";
+    const char *json_path = argc > 2 ? argv[2] : "config.json";
     xk_matrix matrix = {0};
     xk_binding binding = {0};
     xk_solution solution = {0};
@@ -28,7 +24,7 @@ int main(int argc, char **argv)
         goto done;
     }
 
-    status = xianzhikrylov_init(XK_SAMPLE_BACKEND, 0, json_path, &handle);
+    status = xianzhikrylov_init(XIANZHIKRYLOV_BACKEND_AUTO, 0, json_path, &handle);
     if (status != XIANZHIKRYLOV_SUCCESS) {
         fprintf(stderr, "init status=%d\n", (int)status);
         rc = 1;

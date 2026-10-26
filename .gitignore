@@ -2,5 +2,5 @@
 *.o
 *.d
 *.so
-license.key
-licenses/
+libraries/*
+!libraries/README.md

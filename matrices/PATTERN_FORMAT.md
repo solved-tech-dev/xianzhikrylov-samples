@@ -38,7 +38,7 @@ columns.
 
 ## Value generation
 
-`sample_common.h` uses a fixed integer-only hash of:
+`../common/sample_common.h` uses a fixed integer-only hash of:
 
 - the seed stored in the file;
 - model identifier;

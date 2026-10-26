@@ -9,13 +9,9 @@
 
 These files contain only CSR sparsity patterns. They do not contain the values
 of A or the right-hand-side vector b. See
-[`../PATTERN_FORMAT.md`](../PATTERN_FORMAT.md) for the binary layout and value
+[`PATTERN_FORMAT.md`](PATTERN_FORMAT.md) for the binary layout and value
 generation rules.
 
-Each sample's `data/` directory contains a relative symbolic link to one of
-these files. All 35 samples share the same data to avoid storing many duplicate
-copies.
-
-The original `.tar.gz` archive preserves these links. If a ZIP tool does not
-preserve symbolic links, use the Git repository or the original `.tar.gz`
-archive, or pass an absolute matrix path when running a sample.
+All samples read these files directly from this directory. The sample
+`Makefile`s supply the matching file as the default `RUN_ARGS` value. You can
+pass a different matrix path or your own CSR input to a sample.
