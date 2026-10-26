@@ -153,8 +153,7 @@ int main(int argc, char **argv)
     system.rhs.low =
         xk_input(rhs_low, (size_t)matrix.h.rows * sizeof(double));
 
-    status = xianzhikrylov_init(
-        XIANZHIKRYLOV_BACKEND_AUTO, 0, json_path, &handle);
+    status = xianzhikrylov_init(0, json_path, &handle);
     if (status != XIANZHIKRYLOV_SUCCESS) {
         fprintf(stderr, "init status=%d\n", (int)status);
         rc = 1;

@@ -77,11 +77,11 @@ host CSR input.
 
 ## Seven C Functions
 
-### `xianzhikrylov_init(XIANZHIKRYLOV_BACKEND_AUTO, device_id, config_path, &handle)`
+### `xianzhikrylov_init(device_id, config_path, &handle)`
 
-Creates a handle, lets the installed vendor package select its compiled backend,
-selects the visible GPU, and reads the JSON configuration. The function returns
-only the status and fills `handle` on success.
+Creates a handle, selects the visible GPU, and reads the JSON configuration.
+The installed vendor package determines its runtime and hardware target. The
+function returns only the status and fills `handle` on success.
 
 ### `xianzhikrylov_set_system(handle, changes, &system)`
 
