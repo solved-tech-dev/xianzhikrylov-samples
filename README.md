@@ -4,15 +4,14 @@
 
 XianzhiKrylov solves sparse linear systems with GPU Krylov methods. Packages
 from different GPU vendors use the same C API. This repository provides
-independent C samples that import a matrix and right-hand side, select a route
+independent C samples that load a matrix and right-hand side, select a method
 with `config.json`, solve `Ax=b`, copy back x, and verify the original-system
 residual.
 
 The samples cover common iterative methods, preconditioners, sparse matrix
-formats, multiple right-hand sides, and several native data precisions. The
-installed package determines which combinations are available.
+formats, multiple right-hand sides, and several data precisions.
 
-Library packages and licenses are available from
+You can download library packages and licenses from
 <https://store.solved-tech.com/>.
 
 ## Repository Layout
