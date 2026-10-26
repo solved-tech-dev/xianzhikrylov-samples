@@ -1,103 +1,118 @@
 # XianzhiKrylov Samples
 
-This repository contains 35 independent C samples for the XianzhiKrylov C API.
-Each sample shows how to pass A and b to XianzhiKrylov, run a solver, copy back
+## Overview
+
+XianzhiKrylov is a GPU library for solving sparse linear systems with Krylov
+subspace methods. It provides iterative solvers and preconditioners through one
+C API. Different GPU vendor packages use the same API.
+
+This repository provides 35 C examples. They show how to pass A and b to the
+library, choose a solver route with `solver.json`, solve the system, copy back
 x, and check the residual.
 
-You can download XianzhiKrylov packages and licenses from
-[https://store.solved-tech.com/](https://store.solved-tech.com/).
+XianzhiKrylov binaries and runtime licenses are not part of this repository.
+Download them from [Solved Tech](https://store.solved-tech.com/).
 
-## Package and License Layout
+## Quick Start
 
-The XianzhiKrylov package and license are not part of this Samples repository.
-The recommended layout is:
+### What you need
+
+- a Linux machine supported by the XianzhiKrylov package;
+- a GPU vendor toolkit version supported by the package;
+- a C compiler and GNU Make;
+- a valid license for the installed GPU.
+
+A package is compatible when its README lists your CPU architecture, GPU model
+or architecture, and CUDA Toolkit/DTK/MUSA SDK version. A newer toolkit is not
+automatically supported. GPU driver selection is outside this repository; use
+the driver supplied by the target system.
+
+CMake is not required.
+
+### Package and license layout
+
+The recommended layout places this repository inside the extracted package:
 
 ```text
-XianzhiKrylov/                  # one extracted vendor package
-├── include/                   # C API headers
-├── lib/                       # library and runtime core files
-├── license.key                # one license file
+XianzhiKrylov/
+├── include/
+├── lib/
+├── license.key                # one license
 ├── licenses/                  # optional: multiple .key files
 │   └── device-1.license.key
-└── samples/                   # contents of this Samples repository
-    ├── README.md
-    ├── Makefile
-    ├── data/
-    └── 01_cg/ ... 35_dd_fgmres/
+└── samples/                   # contents of this repository
 ```
 
-Use either the single `license.key` file or the `licenses/*.key` directory.
-The license must be inside the package root, next to `include/` and `lib/`.
+Use either `license.key` or `licenses/*.key`. The license must be in the package
+root, next to `include/` and `lib/`.
 
-If the Samples directory is kept separately:
+### Build and run the first sample
+
+This example uses `17_fgmres_ilu0` on an NVIDIA GPU.
+
+If you downloaded this README from GitHub, start with a separate directory:
+
+```bash
+git clone https://github.com/solved-tech-dev/xianzhikrylov-samples.git
+export XK_ROOT="/path/to/XianzhiKrylov"
+cp /path/to/xianzhikrylov-xxxx.license.key "$XK_ROOT/license.key"
+cd xianzhikrylov-samples/17_fgmres_ilu0
+make clean
+make XK_ROOT="$XK_ROOT" XK_BACKEND=1
+make run XK_ROOT="$XK_ROOT" XK_BACKEND=1
+```
+
+Replace `/path/to/XianzhiKrylov` with the extracted package directory.
+
+If this repository is already in the package's `samples/` directory, use:
+
+```bash
+cp /path/to/xianzhikrylov-xxxx.license.key ../../license.key
+cd /path/to/XianzhiKrylov/samples/17_fgmres_ilu0
+make clean
+make XK_BACKEND=1
+make run XK_BACKEND=1
+```
+
+For Hygon DCU with the HIP package, use `XK_BACKEND=2`. For other vendors, use
+the value in that package's README.
+
+When it works, the output contains:
 
 ```text
-workspace/
-├── XianzhiKrylov/
-│   ├── include/
-│   ├── lib/
-│   ├── license.key
-│   └── licenses/
-└── xianzhikrylov-samples/
-    ├── README.md
-    ├── Makefile
-    └── 01_cg/ ... 35_dd_fgmres/
+XianzhiKrylov status=1 converged=1 iterations=<n> route=<route> residual=<r> rhs_norm=<b> relative_residual=<ratio> prepare_solve_seconds=<time>
+Independent residual RHS 1: relative_l2=<value> absmax=<value> PASS
 ```
 
-In this case, set `XK_ROOT` to `workspace/XianzhiKrylov`.
-Do not merge the `lib/` or `include/` files from different vendor packages.
+The values depend on the matrix and GPU. `PASS` means that x was copied back to
+the CPU and `r=b-Ax` was checked with the original matrix. Solver status `1`
+means convergence; API calls that only perform an action return `0` on success.
 
-## Project Structure
+`17_fgmres_ilu0` is a performance-sized example with about one million rows, not
+a tiny smoke test. It may take several seconds and use a noticeable amount of
+GPU memory.
 
-```text
-samples/
-├── README.md                  # sample list, setup, and general help
-├── Makefile                   # build or clean all samples
-├── PATTERN_FORMAT.md          # format of the .csrpat matrix files
-├── routes.json                # method and data settings for all samples
-├── data/
-│   ├── README.md              # size and model information for the data
-│   ├── diffusion_1m.csrpat
-│   ├── transport_1m.csrpat
-│   ├── coupled4_500k.csrpat
-│   └── complex_262k_3rhs.csrpat
-├── 01_cg/
-│   ├── sample.c               # runnable C program for this route
-│   ├── sample_common.h         # local helper code used by sample.c
-│   ├── solver.json            # iterative method and preconditioner settings
-│   ├── Makefile               # build and run this sample
-│   ├── README.md              # short guide for this sample
-│   └── data/
-│       └── diffusion_1m.csrpat -> ../../data/diffusion_1m.csrpat
-├── ...
-└── 35_dd_fgmres/
-    ├── sample.c
-    ├── sample_common.h
-    ├── solver.json
-    ├── Makefile
-    ├── README.md
-    └── data/
-        └── diffusion_1m.csrpat -> ../../data/diffusion_1m.csrpat
-```
+## Features
 
-The files work as follows:
+The examples cover:
 
-- `README.md`: this file, which lists all samples and gives the first-run steps;
-- `Makefile` at the top level: builds or cleans all 35 samples;
-- `PATTERN_FORMAT.md`: explains how a `.csrpat` file is stored;
-- `routes.json`: lists the method, preconditioner, matrix format, and data format for every sample;
-- `data/`: stores the four matrix patterns shared by all samples;
-- each numbered directory: one solver route and an independent sample program;
-- `sample.c`: calls the public C API from start to finish;
-- `sample_common.h`: reads A and b, converts matrix formats, and checks the result;
-- `solver.json`: configuration file that selects the iterative method and preconditioner;
-- the local `Makefile`: builds and runs one sample;
-- the local `README.md`: gives short run steps for that sample;
-- the local `data/` link: points to the shared pattern used by that sample.
+- iterative methods: CG, PCG, FCG, BiCG, BiCGSTAB, GMRES, FGMRES, and GCR;
+- preconditioners: none, Jacobi, ILU(0), IC(0), DIC, DILU, and block variants;
+- matrix formats: CSR, BSR, MSR, and LDU;
+- real and complex FP64 data;
+- float and float-complex input samples;
+- a Double-Double solution example.
 
-## Samples List
+The exact route mix depends on the vendor package.
 
-| Sample | Solver route | Matrix format | Data format |
+## Examples
+
+`Input data type` shows how A and b are stored in the example. It does not always
+show the arithmetic used inside the solver. The float and float-complex examples
+convert their arrays to the FP64 and complex-FP64 descriptors used by the current
+public C API.
+
+| Sample | Solver route | Matrix format | Input data type |
 | --- | --- | --- | --- |
 | [01_cg](01_cg/README.md) | cg / none | CSR | double |
 | [02_bicg](02_bicg/README.md) | bicg / none | CSR | double |
@@ -133,356 +148,98 @@ The files work as follows:
 | [32_complex_batch3](32_complex_batch3/README.md) | fgmres_complex_batch / none | CSR | double complex |
 | [33_float_fgmres_ilu0](33_float_fgmres_ilu0/README.md) | fgmres / ilu0 | CSR | float |
 | [34_float_complex_batch3](34_float_complex_batch3/README.md) | fgmres_complex_batch / none | CSR | float complex |
-| [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES / LinglongAMG | CSR | double input / Double-Double solution |
+| [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES / LinglongAMG | CSR | double |
 
-The float and float-complex samples convert their data to the FP64 and
-complex-FP64 descriptors needed by the current public C API. This does not mean
-that the solver uses FP32 arithmetic. The DD sample uses FP64 matrix values and
-returns a solution in two double planes.
+`35_dd_fgmres` needs a separately installed LinglongAMG library and AMG config
+file. Its license or availability is controlled by LinglongAMG, not by this
+Samples repository. Its input is FP64, and its solution is returned as
+Double-Double.
 
-## Requirements
+## Using Your Own Matrix
 
-Before running a sample, make sure you have:
+You do not need to convert your matrix to `.csrpat`. That format is only used by
+the samples to keep the repository small.
 
-- a Linux machine supported by the XianzhiKrylov package;
-- a GPU vendor toolkit version compatible with that package;
-- a C compiler and GNU Make;
-- a valid license for the installed GPU.
+For your own CSR matrix:
 
-A package is compatible when its README lists your CPU architecture, GPU model
-or architecture, and CUDA Toolkit/DTK/MUSA SDK version. A newer
-toolkit is not automatically supported. GPU driver selection is outside this
-repository; use the driver supplied by the target system.
+1. Put row offsets, column indices, and values in CPU arrays.
+2. Fill an `xianzhikrylov_system_data` descriptor.
+3. Pass it to `xianzhikrylov_set_system`.
+4. Select the method and preconditioner in `solver.json`.
+5. Run prepare, solve, and solution download.
 
-CMake is not required.
+In `sample.c`, replace the calls to `xk_matrix_load` and `xk_binding_make` with
+your own loader and descriptor setup. Keep the public API calls from
+`xianzhikrylov_init` through `xianzhikrylov_destroy`.
 
-## First Run
+The package headers in `include/` contain the current structures and field
+rules. Matrix values remain FP64 for standard routes. The sample generates b
+from a known exact solution so that it can check the answer.
 
-This example uses `17_fgmres_ilu0`. It assumes that you downloaded the package
-to `~/Downloads`.
-
-### Step 1: Extract and enter the package
-
-```bash
-cd ~/Downloads
-tar -xzf xianzhikrylov-*.tar.gz
-cd XianzhiKrylov
-```
-
-The extracted directory name can differ between packages. If `cd XianzhiKrylov`
-fails, run `ls`, then enter the directory containing `include/`, `lib/`, and
-`samples/`.
-
-Verify the package:
-
-```bash
-pwd
-ls
-test -f include/XianzhiKrylovAPI.h && echo "include OK"
-test -f lib/libXianzhiKrylov.so && echo "lib OK"
-test -d samples && echo "samples OK"
-```
-
-All three checks must print `OK`.
-
-### Step 2: Install the license
-
-For a single-device license, copy the received `.license.key` file to the
-package root:
-
-```bash
-cp /path/to/xianzhikrylov-xxxx.license.key ./license.key
-chmod 600 ./license.key
-ls -l ./license.key
-```
-
-For multiple device licenses, place the key files under `licenses/`:
-
-```bash
-mkdir -p licenses
-cp /path/to/*.license.key licenses/
-ls -l licenses/
-```
-
-If the license arrives in a ZIP file:
-
-```bash
-unzip /path/to/xianzhikrylov-xxxx.licenses.zip -d licenses
-find licenses -type f -name "*.key" -print
-```
-
-The `.key` files must be directly inside `licenses/`. If the archive creates an
-extra directory level, move the key files up one level.
-
-The license must match the machine, GPU, and package. Do not edit its contents.
-
-On a cluster, request a GPU and run the sample on a compute node. Do not run the
-solver on a login node without a GPU.
-
-### Step 3: Select the GPU backend
-
-The samples use `XK_BACKEND` to select the compiled backend:
-
-| GPU backend | Common `XK_BACKEND` value |
-| --- | --- |
-| NVIDIA CUDA | `1` |
-| Hygon DCU / ROCm / HIP | `2` |
-| Moore Threads MUSA | `3` |
-| SYCL | `4` |
-| OpenCL | `5` |
-| HCR | `6` |
-
-If the package README lists another number, use that value.
-
-### Step 4: Compile
-
-From the package root:
-
-```bash
-export XK_ROOT="$PWD"
-cd samples/17_fgmres_ilu0
-make clean
-make XK_BACKEND=1
-```
-
-For Hygon, replace the last command with:
-
-```bash
-make XK_BACKEND=2
-```
-
-Compilation creates an executable named `sample`.
-
-### Step 5: Run
-
-For NVIDIA:
-
-```bash
-make run XK_BACKEND=1
-```
-
-For Hygon:
-
-```bash
-make run XK_BACKEND=2
-```
-
-When it works, the output contains lines like:
+## Repository Layout
 
 ```text
-XianzhiKrylov status=1 converged=1 ... relative_residual=...
-Independent residual RHS 1: relative_l2=... PASS
+samples/
+├── README.md                  # overview, quick start, and example list
+├── Makefile                   # build or clean all samples
+├── PATTERN_FORMAT.md          # format of the .csrpat matrix files
+├── routes.json                # method and data settings for all samples
+├── data/                      # shared matrix patterns
+├── docs/
+│   └── TROUBLESHOOTING.md     # detailed fault finding
+├── 01_cg/
+│   ├── sample.c               # runnable C program
+│   ├── sample_common.h        # loader, format conversion, and residual check
+│   ├── solver.json            # method and preconditioner settings
+│   ├── Makefile               # build and run this sample
+│   ├── README.md              # short run guide
+│   └── data/
+│       └── diffusion_1m.csrpat -> ../../data/diffusion_1m.csrpat
+├── ...
+└── 35_dd_fgmres/
+    └── ...
 ```
 
-`status=1` and `converged=1` mean that the solver reached the stop condition in
-`solver.json`. `PASS` means that the sample checked `r=b-Ax` on the CPU with the
-original matrix.
-
-Check the exit code:
-
-```bash
-echo $?
-```
-
-An exit code of `0` means success.
-
-## Run Another Sample
-
-You can build and run each sample by itself:
-
-```bash
-cd ..
-cd 01_cg
-make clean
-make XK_BACKEND=1
-make run XK_BACKEND=1
-```
-
-To build all samples:
-
-```bash
-cd /path/to/XianzhiKrylov/samples
-make XK_BACKEND=1
-```
-
-If a build fails, look at the sample directory named just before the last
-`error` or `Error` line.
-
-## Command Reference
-
-- `make`: compile the current sample into `./sample`;
-- `make run`: compile if needed, then run with the XianzhiKrylov library path;
-- `make clean`: remove the generated `sample`;
-- `XK_BACKEND=<n>`: select the GPU backend used at compile time;
-- `XK_ROOT=/path/to/XianzhiKrylov`: point a separate Samples checkout at the
-  package that contains `include/` and `lib/`;
-- `GPU_RUNTIME_LIB_DIR=/path/to/runtime/lib`: add a vendor runtime library
-  directory when the system cannot find it.
-
-For a separate Samples checkout:
-
-```bash
-export XK_ROOT="/path/to/XianzhiKrylov"
-cd "/path/to/xianzhikrylov-samples/17_fgmres_ilu0"
-make clean
-make XK_ROOT="$XK_ROOT" XK_BACKEND=1
-make run XK_ROOT="$XK_ROOT" XK_BACKEND=1
-```
-
-When `samples/` is inside the package, `XK_ROOT` is not needed. Each Makefile
-finds the package root from its own directory.
-
-## Data Flow
-
-The samples create A and b in ordinary CPU memory and mark both descriptors as
-`XIANZHIKRYLOV_HOST`.
-
-1. `xianzhikrylov_init` creates the handle and selects the GPU backend.
-2. `xianzhikrylov_set_system` copies the host arrays into GPU storage owned by
-   the library and waits for the copy to finish.
-3. `xianzhikrylov_solve_prepare` and `xianzhikrylov_solve` use the GPU copies.
-4. `xianzhikrylov_solution_download` copies the solution back to a host buffer.
-
-The library owns the uploaded A and b data, so the sample can free its CPU
-copies after `set_system` returns.
-
-If your program already keeps A or b in GPU memory, use
-`XIANZHIKRYLOV_DEVICE` descriptors. The samples use host memory because it works
-the same way on all supported GPU vendors.
+`sample_common.h` reads the sparse pattern, builds A and b, converts matrix
+formats, and checks the result. The library does not require this helper.
 
 ## Sample Data
 
-The four pattern files under `samples/data/` are shared by all 35 samples. The
-matrix file inside each `data/` directory is a relative symbolic link to one of
-those files. The four pattern files occupy about 90 MiB.
+The four `.csrpat` files store sparse patterns, not complete linear systems.
+Matrix values and b are built at runtime from fixed settings and known exact
+solutions. Therefore every run uses the same data without storing millions of
+matrix values in Git.
 
-`.csrpat` stores the matrix order, CSR row offsets and column indices, scalar
-class, model number, fixed seed, and RHS count. It does not store A values or b.
-`sample_common.h` builds A in a fixed way and builds `b=A*x_exact`:
+The `data/` file in each sample is a link to the shared data. A Git clone or
+original `.tar.gz` keeps these links. If your ZIP tool loses links, pass the
+matrix path directly to `sample`.
 
-- real systems use an exact solution of all ones;
-- the complex three-RHS sample uses three distinct constant complex vectors.
+See [data/README.md](data/README.md) and
+[PATTERN_FORMAT.md](PATTERN_FORMAT.md) for details.
 
-Every sample copies back x and checks the residual with the original system.
+## Data Flow
 
-`xianzhikrylov_print_info` reports setup and solve time inside the library. It
-does not include the CPU-to-GPU copy in `set_system`. If you report total run
-time, also count your input work and the `set_system` call.
+The sample creates A and b in CPU memory and marks them as
+`XIANZHIKRYLOV_HOST`.
 
-See [`PATTERN_FORMAT.md`](PATTERN_FORMAT.md) for the binary format.
+1. `xianzhikrylov_init` creates the handle and selects the GPU.
+2. `xianzhikrylov_set_system` copies A and b into GPU storage owned by the
+   library and waits for the copy to finish.
+3. `xianzhikrylov_solve_prepare` prepares the selected route.
+4. `xianzhikrylov_solve` computes x.
+5. `xianzhikrylov_solution_download` copies x back to CPU memory.
+
+The library owns the uploaded data. The sample can free its CPU copies after
+`set_system` returns.
 
 ## Troubleshooting
 
-### How do I know whether the package is compatible?
+Common first checks:
 
-Check every item below against the package README:
+- missing header: set `XK_ROOT` to the package root;
+- missing shared library: run `ldd ./sample`;
+- license error: check `license.key` or `licenses/*.key`;
+- missing matrix: keep the Git/`.tar.gz` links or pass a direct path;
+- wrong backend: check `XK_BACKEND` in the package README.
 
-| Item | What to check |
-| --- | --- |
-| CPU architecture | Matches the package, for example `x86_64`. |
-| Linux C library | Meets the minimum glibc version stated in the package README. |
-| GPU vendor and backend | The package backend is CUDA, HIP, MUSA, SYCL, OpenCL, HCR, or another documented backend that supports the installed GPU. |
-| GPU architecture | The GPU model or compiled target is listed as supported by the package, such as a CUDA SM target or Hygon `gfx` target. |
-| Vendor toolkit | The installed CUDA Toolkit, DTK, MUSA SDK, or other vendor toolkit version is supported by the package. |
-
-Use the package README for exact version and GPU support. A newer vendor toolkit
-is not automatically supported.
-
-GPU driver installation and driver-version selection are outside this
-repository. Use the driver supplied by the target system or platform provider.
-
-A license is also required. It must match the machine, GPU, and product for
-which it was issued.
-
-### `cc` or `make` is missing
-
-Check the required build tools:
-
-```bash
-cc --version
-make --version
-```
-
-On Ubuntu or Debian, install the basic build tools with:
-
-```bash
-sudo apt update
-sudo apt install build-essential
-```
-
-Use the equivalent package manager on other Linux distributions.
-
-### `XianzhiKrylovAPI.h: No such file or directory`
-
-The build cannot find the package root. Check that the directory contains
-`include/` and `lib/`. If the samples and package are in different directories,
-pass:
-
-```bash
-XK_ROOT="/path/to/XianzhiKrylov"
-```
-
-to both `make` and `make run`.
-
-### `Missing library: lib/libXianzhiKrylov.so`
-
-The package is missing files, or `XK_ROOT` points to the wrong directory:
-
-```bash
-ls -l "$XK_ROOT/lib/libXianzhiKrylov.so"
-```
-
-### `cannot open shared object file`
-
-The system cannot find a vendor runtime library. Find its directory in the
-package README, then run:
-
-```bash
-export GPU_RUNTIME_LIB_DIR="/path/to/vendor/runtime/lib"
-make run XK_BACKEND=1 GPU_RUNTIME_LIB_DIR="$GPU_RUNTIME_LIB_DIR"
-```
-
-Do not copy a `.so` file from a package built for another vendor.
-
-### `init status=11` or `LICENSE_ERROR`
-
-The license check failed. Check:
-
-- `license.key` or `licenses/*.key` exists in the package root;
-- the license has not expired;
-- the license was issued for this machine and GPU;
-- the package vendor and version match the license;
-- the system time and license file have not been modified.
-
-Do not edit the JSON file or replace the library to get around a license error.
-
-### The backend value is wrong
-
-The `XK_BACKEND` value does not match the selected package. Use the number in
-the package README.
-
-### Cannot find the matrix file
-
-The link under `data/` is broken. Run from the original Git
-checkout or extracted `.tar.gz`, or pass an absolute matrix path directly:
-
-```bash
-./sample /absolute/path/to/matrix.csrpat solver.json
-```
-
-Some ZIP tools do not keep symbolic links.
-
-### `solve status=2`
-
-The solver used all allowed iterations. Test the environment first with
-`17_fgmres_ilu0`. For a different matrix, adjust the method, preconditioner,
-restart length, or iteration limit in `solver.json`.
-
-### Changes to the source do not appear
-
-Recompile from a clean state:
-
-```bash
-make clean
-make XK_BACKEND=1
-```
+See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for the full guide.

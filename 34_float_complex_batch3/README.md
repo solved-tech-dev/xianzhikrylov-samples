@@ -1,9 +1,9 @@
 # Float Complex Buffers with Batch FGMRES
 
 This sample shows how to solve `Ax=b` using **batched complex FP64 FGMRES** with no preconditioner.
-Matrix format: `CSR`. Data format: `float complex`.
+Matrix format: `CSR`. Input data type: `float complex`.
 
-## Data format
+## Input data
 
 The sample stores A, b, and the checked solution as float complex values. It
 converts those arrays to `xianzhikrylov_complex` descriptors before it calls
@@ -115,7 +115,7 @@ Change `XK_BACKEND=1` to the value for your package.
 ## Files
 
 - `sample.c`: a full solve example that uses the public C API;
-- `sample_common.h`: helper code for reading A and b, converting formats, and checking the result;
+- `sample_common.h`: reads the sparse pattern, builds A and b, converts formats, and checks the result;
 - `solver.json`: configuration file that selects the iterative method and preconditioner;
 - `Makefile`: build and run commands;
 - `data/complex_262k_3rhs.csrpat`: the sample matrix pattern;

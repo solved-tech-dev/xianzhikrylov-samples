@@ -447,6 +447,7 @@
     "id": "35_dd_fgmres",
     "pattern_model": 1,
     "pattern_seed": "584b32364d415447",
-    "data_format": "double input / Double-Double solution"
+    "data_format": "double",
+    "solution_format": "Double-Double"
   }
 ]
