@@ -19,14 +19,14 @@ You can download library packages and licenses from
 ```text
 xianzhikrylov-samples/
 ├── README.md
-├── Makefile
-├── common.mk
+├── Makefile                    # Build or clean every sample
+├── common.mk                   # Shared build, link, run, and clean rules
 │
 ├── common/
-│   └── sample_common.h
+│   └── sample_common.h         # Helper code shared by multiple samples
 │
 ├── libraries/
-│   ├── README.md
+│   ├── README.md               # Library package and license layout
 │   └── <package-name>/
 │       ├── include/
 │       ├── lib/
@@ -34,14 +34,14 @@ xianzhikrylov-samples/
 │       └── ...
 │
 ├── matrices/
-│   ├── README.md
-│   ├── PATTERN_FORMAT.md
+│   ├── README.md               # Matrix file descriptions
+│   ├── PATTERN_FORMAT.md       # Sparse pattern format
 │   ├── transport_1m.csrpat
 │   └── ...
 │
 ├── docs/
-│   ├── PRODUCT_GUIDE.md
-│   └── TROUBLESHOOTING.md
+│   ├── PRODUCT_GUIDE.md        # C API and configuration guide
+│   └── TROUBLESHOOTING.md      # Common build and runtime problems
 │
 ├── 01_cg/
 │   ├── sample.c
@@ -52,11 +52,6 @@ xianzhikrylov-samples/
 │   └── ...
 └── ...
 ```
-
-`common.mk` contains the shared build, link, run, and clean rules.
-`common/sample_common.h` contains helper code used by multiple samples.
-`matrices/` contains only shared matrix files. Each `NN_<feature>/` directory
-contains one independent sample.
 
 ## Quick Start
 
