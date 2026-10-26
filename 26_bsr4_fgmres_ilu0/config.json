@@ -2,6 +2,10 @@
   "schema_version": 1,
   "matrix_format": "bsr",
   "block_size": 4,
+  "kernels": {
+    "factor": "bsr_native_ilu0",
+    "sptrsv": "bsr_jacobi4"
+  },
   "solver": {
     "method": "fgmres",
     "preconditioner": "ilu0",
@@ -12,4 +16,3 @@
     "initial_guess": "zero"
   }
 }
-

@@ -156,14 +156,19 @@ make clean
 | [33_float_fgmres_jacobi](33_float_fgmres_jacobi/README.md) | fgmres / jacobi | CSR | FP32 |
 | [34_float_complex_batch3](34_float_complex_batch3/README.md) | fgmres_complex_fp32_batch | CSR | complex FP32 |
 | [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES | CSR | Double-Double |
+| [36_multiple_rhs_reuse](36_multiple_rhs_reuse/README.md) | fgmres / ilu0; separate phases and reuse | CSR | FP64 |
 
 ### Sample Input
 
 The files in `matrices/` contain sparse patterns and fixed generation settings.
 Each sample creates deterministic matrix values and a right-hand side, passes
-host A, b, and x to `xianzhikrylov_execute(XIANZHIKRYLOV_PHASE_ALL)`, then uses
+host A, b, and x to `xianzhikrylov_execute()`, then uses
 the original system for an independent residual check. The library writes the
 final solution directly to the host x object.
+
+Most samples use `XIANZHIKRYLOV_PHASE_ALL` for one complete solve.
+`36_multiple_rhs_reuse` calls the three phases separately and reuses preparation
+for new right-hand sides.
 
 `config.json` selects the method, preconditioner, tolerances, and precision-
 specific method.
@@ -179,6 +184,7 @@ original-system residual independently.
 
 ```text
 XianzhiKrylov status=1 converged=1 iterations=<n> method=<method> residual=<r> rhs_norm=<b> relative_residual=<ratio> prepare_solve_seconds=<time>
+analysis_seconds=<time> numeric_prepare_seconds=<time> solve_seconds=<time>
 Independent residual RHS 1: relative_l2=<value> absmax=<value> PASS
 ```
 

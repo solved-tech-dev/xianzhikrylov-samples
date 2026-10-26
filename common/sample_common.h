@@ -52,6 +52,31 @@ typedef struct {
     xianzhikrylov_complex_t *z;
 } xk_solution;
 
+/* Create three FP64 right-hand sides using the input b, 2*b and 3*b.
+ * Call before creating vector objects, because realloc may move b. */
+static inline int xk_matrix_three_rhs(xk_matrix *a)
+{
+    uint64_t i;
+    double *expanded;
+    if (!a || a->h.scalar != 1 || a->h.rhs_count != 1 || !a->b ||
+        a->h.rows > SIZE_MAX / (3 * sizeof(double))) return 0;
+    expanded = (double *)realloc(a->b, (size_t)a->h.rows * 3 * sizeof(double));
+    if (!expanded) return 0;
+    a->b = expanded;
+    for (i = 0; i < a->h.rows; ++i) {
+        a->b[a->h.rows + i] = 2 * a->b[i];
+        a->b[2 * a->h.rows + i] = 3 * a->b[i];
+    }
+    a->h.rhs_count = 3;
+    return 1;
+}
+
+static inline void xk_matrix_scale_rhs(xk_matrix *a, double scale)
+{
+    uint64_t i;
+    for (i = 0; i < a->h.rows * a->h.rhs_count; ++i) a->b[i] *= scale;
+}
+
 static inline void xk_matrix_free(xk_matrix *a)
 {
     if (!a) return;

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "matrix_format": "csr",
+  "solver": {
+    "method": "fgmres",
+    "preconditioner": "ilu0",
+    "restart": 40,
+    "max_iterations": 2000,
+    "relative_tolerance": 1e-9,
+    "absolute_tolerance": 0,
+    "initial_guess": "zero"
+  }
+}

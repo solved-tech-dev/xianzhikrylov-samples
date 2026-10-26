@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "matrix_symmetry": "spd",
   "matrix_format": "csr",
   "block_size": 1,
   "solver": {
