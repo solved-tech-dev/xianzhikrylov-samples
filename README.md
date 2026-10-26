@@ -7,10 +7,50 @@ x, and check the residual.
 You can download XianzhiKrylov packages and licenses from
 [https://store.solved-tech.com/](https://store.solved-tech.com/).
 
+## Package and License Layout
+
+The XianzhiKrylov package and license are not part of this Samples repository.
+The recommended layout is:
+
+```text
+XianzhiKrylov/                  # one extracted vendor package
+├── include/                   # C API headers
+├── lib/                       # library and runtime core files
+├── license.key                # one license file
+├── licenses/                  # optional: multiple .key files
+│   └── device-1.license.key
+└── samples/                   # contents of this Samples repository
+    ├── README.md
+    ├── Makefile
+    ├── data/
+    └── 01_cg/ ... 35_dd_fgmres/
+```
+
+Use either the single `license.key` file or the `licenses/*.key` directory.
+The license must be inside the package root, next to `include/` and `lib/`.
+
+If the Samples directory is kept separately:
+
+```text
+workspace/
+├── XianzhiKrylov/
+│   ├── include/
+│   ├── lib/
+│   ├── license.key
+│   └── licenses/
+└── xianzhikrylov-samples/
+    ├── README.md
+    ├── Makefile
+    └── 01_cg/ ... 35_dd_fgmres/
+```
+
+In this case, set `XK_ROOT` to `workspace/XianzhiKrylov`.
+Do not merge the `lib/` or `include/` files from different vendor packages.
+
 ## Project Structure
 
 ```text
-.
+samples/
 ├── README.md                  # sample list, setup, and general help
 ├── Makefile                   # build or clean all samples
 ├── PATTERN_FORMAT.md          # format of the .csrpat matrix files
