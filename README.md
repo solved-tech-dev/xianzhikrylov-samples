@@ -1,7 +1,7 @@
 # XianzhiKrylov Samples
 
-32 independent C++ samples for the XianzhiKrylov C API. Each directory contains
-`sample.cpp`, its local `sample_common.hpp`, `solver.json`, a Makefile, a short
+32 independent C11 samples for the XianzhiKrylov C API. Each directory contains
+`sample.c`, its local `sample_common.h`, `solver.json`, a Makefile, a short
 README, and a package-internal data link. The samples do not include the
 XianzhiKrylov libraries or a license file.
 
@@ -44,7 +44,7 @@ XianzhiKrylov libraries or a license file.
 
 - An extracted XianzhiKrylov 26.43 package matching the target Linux system
   and GPU.
-- A C++17 compiler, GNU Make, GNU-compatible linker, and the matching CUDA
+- A C11 compiler, GNU Make, GNU-compatible linker, and the matching CUDA
   development toolkit.
 - A valid XianzhiKrylov license for the selected GPU. Runtime authorization is
   local and does not require internet access.
@@ -67,7 +67,7 @@ Build all samples:
 make XK_ROOT="/absolute/path/to/XianzhiKrylov" CUDA_ROOT="/path/to/cuda"
 ```
 
-Each Makefile supports `CXX`, `CXXFLAGS`, `CPPFLAGS`, `LDFLAGS`, `LDLIBS`,
+Each Makefile supports `CC`, `CFLAGS`, `CPPFLAGS`, `LDFLAGS`, `LDLIBS`,
 `XK_ROOT`, `CUDA_ROOT`, `CUDA_LIB_DIR`, and `RUN_ARGS`. Use `make clean` before
 changing the package, toolkit, or compiler flags.
 
@@ -83,7 +83,7 @@ the same data repeatedly. The four pattern files occupy about 90 MiB.
 - CSR row offsets and column indices;
 - scalar type, model identifier, fixed seed, and RHS count.
 
-It does not store matrix values or the right-hand side. `sample_common.hpp`
+It does not store matrix values or the right-hand side. `sample_common.h`
 generates deterministic values from the pattern and fixed seed, then constructs
 the right-hand side from known exact solutions:
 

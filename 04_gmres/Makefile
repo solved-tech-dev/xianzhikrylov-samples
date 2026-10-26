@@ -1,7 +1,7 @@
 # Build this sample against an existing XianzhiKrylov package.
 # XK_ROOT defaults to the package containing samples/.
-CXX ?= g++
-CXXFLAGS ?= -O3 -std=c++17 -Wall -Wextra
+CC ?= gcc
+CFLAGS ?= -O3 -std=c11 -Wall -Wextra
 XK_ROOT ?= $(if $(XIANZHIKRYLOV_ROOT),$(XIANZHIKRYLOV_ROOT),$(abspath $(CURDIR)/../..))
 CUDA_ROOT ?= /usr/local/cuda
 CUDA_LIB_DIR ?= $(if $(wildcard $(CUDA_ROOT)/lib64),$(CUDA_ROOT)/lib64,$(CUDA_ROOT)/lib)
@@ -28,8 +28,8 @@ check:
 	@test -f "$(CUDA_LIB_DIR)/libcudart.so" || { \
 	    printf '%s\n' 'Set CUDA_LIB_DIR to the directory containing libcudart.so.' >&2; exit 1; }
 
-$(TARGET): sample.cpp sample_common.hpp | check
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) sample.cpp -o $@ $(LDFLAGS) $(LDLIBS)
+$(TARGET): sample.c sample_common.h | check
+	$(CC) $(CPPFLAGS) $(CFLAGS) sample.c -o $@ $(LDFLAGS) $(LDLIBS)
 
 run: all
 	LD_LIBRARY_PATH="$(XK_ROOT)/lib:$(CUDA_LIB_DIR)$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" \

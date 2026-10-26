@@ -24,8 +24,8 @@ export LD_LIBRARY_PATH="/absolute/path/to/XianzhiKrylov/lib:/path/to/cuda/lib64$
 
 ## 输入和数据
 
-- `sample.cpp`：调用公开七函数的完整示例。
-- `sample_common.hpp`：本样例使用的文件读取、格式转换和残差检查。
+- `sample.c`：调用公开七函数的完整示例。
+- `sample_common.h`：本样例使用的文件读取、格式转换和残差检查。
 - `solver.json`：求解方法和预条件参数。
 - `data/transport_1m.csrpat`：LDU 格式，一般系统。
 
