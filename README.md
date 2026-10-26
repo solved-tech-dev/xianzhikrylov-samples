@@ -1,6 +1,6 @@
 # XianzhiKrylov Samples
 
-本仓库包含 32 个相互独立的 C 样例，用来演示 XianzhiKrylov C 接口的完整调用过程：
+本仓库包含 35 个相互独立的 C 样例，用来演示 XianzhiKrylov C 接口的完整调用过程：
 读取矩阵 A 和右端向量 b、上传数据、准备求解器、求解、取回解，并在 CPU 上检查残差。
 
 每个目录中的文件含义相同：
@@ -27,40 +27,58 @@ FGMRES + ILU(0) 组合，适合第一次确认软件包、授权、GPU 运行环
 - BSR 块矩阵：`26_bsr4_fgmres_ilu0`；
 - 复数多右端项：`32_complex_batch3`。
 
-| 样例 | 求解路线（迭代法 / 预条件器） | 矩阵格式 | 默认数据 |
+如果主要想了解数据格式如何接入：
+
+- float 应用数据：`33_float_fgmres_ilu0`；
+- float complex 应用数据：`34_float_complex_batch3`；
+- double complex：`32_complex_batch3`；
+- Double-Double 解：`35_dd_fgmres_amg`。
+
+| 样例 | 求解路线（迭代法 / 预条件器） | 矩阵格式 | 数据格式 |
 | --- | --- | --- | --- |
-| [01_cg](01_cg/README.md) | cg / none | csr | `diffusion_1m.csrpat` |
-| [02_bicg](02_bicg/README.md) | bicg / none | csr | `transport_1m.csrpat` |
-| [03_bicgstab](03_bicgstab/README.md) | bicgstab / none | csr | `transport_1m.csrpat` |
-| [04_gmres](04_gmres/README.md) | gmres / none | csr | `transport_1m.csrpat` |
-| [05_fgmres](05_fgmres/README.md) | fgmres / none | csr | `transport_1m.csrpat` |
-| [06_gcr](06_gcr/README.md) | gcr / none | csr | `transport_1m.csrpat` |
-| [07_pcg_jacobi](07_pcg_jacobi/README.md) | pcg / jacobi | csr | `diffusion_1m.csrpat` |
-| [08_fcg_jacobi](08_fcg_jacobi/README.md) | fcg / jacobi | csr | `diffusion_1m.csrpat` |
-| [09_bicg_jacobi](09_bicg_jacobi/README.md) | bicg / jacobi | csr | `transport_1m.csrpat` |
-| [10_bicgstab_jacobi](10_bicgstab_jacobi/README.md) | bicgstab / jacobi | csr | `transport_1m.csrpat` |
-| [11_gmres_jacobi](11_gmres_jacobi/README.md) | gmres / jacobi | csr | `transport_1m.csrpat` |
-| [12_fgmres_jacobi](12_fgmres_jacobi/README.md) | fgmres / jacobi | csr | `transport_1m.csrpat` |
-| [13_gcr_jacobi](13_gcr_jacobi/README.md) | gcr / jacobi | csr | `transport_1m.csrpat` |
-| [14_bicg_ilu0](14_bicg_ilu0/README.md) | bicg / ilu0 | csr | `transport_1m.csrpat` |
-| [15_bicgstab_ilu0](15_bicgstab_ilu0/README.md) | bicgstab / ilu0 | csr | `transport_1m.csrpat` |
-| [16_gmres_ilu0](16_gmres_ilu0/README.md) | gmres / ilu0 | csr | `transport_1m.csrpat` |
-| [17_fgmres_ilu0](17_fgmres_ilu0/README.md) | fgmres / ilu0 | csr | `transport_1m.csrpat` |
-| [18_gcr_ilu0](18_gcr_ilu0/README.md) | gcr / ilu0 | csr | `transport_1m.csrpat` |
-| [19_pcg_ic0](19_pcg_ic0/README.md) | pcg / ic0 | csr | `diffusion_1m.csrpat` |
-| [20_fcg_ic0](20_fcg_ic0/README.md) | fcg / ic0 | csr | `diffusion_1m.csrpat` |
-| [21_gmres_ic0](21_gmres_ic0/README.md) | gmres / ic0 | csr | `diffusion_1m.csrpat` |
-| [22_fgmres_ic0](22_fgmres_ic0/README.md) | fgmres / ic0 | csr | `diffusion_1m.csrpat` |
-| [23_bicgstab_ic0](23_bicgstab_ic0/README.md) | bicgstab / ic0 | csr | `diffusion_1m.csrpat` |
-| [24_bicg_ic0](24_bicg_ic0/README.md) | bicg / ic0 | csr | `diffusion_1m.csrpat` |
-| [25_gcr_ic0](25_gcr_ic0/README.md) | gcr / ic0 | csr | `diffusion_1m.csrpat` |
-| [26_bsr4_fgmres_ilu0](26_bsr4_fgmres_ilu0/README.md) | fgmres / ilu0 | bsr | `coupled4_500k.csrpat` |
-| [27_bsr4_fgmres_jacobi](27_bsr4_fgmres_jacobi/README.md) | fgmres / block_jacobi | bsr | `coupled4_500k.csrpat` |
-| [28_bsr4_fgmres_dilu](28_bsr4_fgmres_dilu/README.md) | fgmres / multicolor_block_dilu | bsr | `coupled4_500k.csrpat` |
-| [29_msr_bicgstab_jacobi](29_msr_bicgstab_jacobi/README.md) | bicgstab / jacobi | msr | `transport_1m.csrpat` |
-| [30_ldu_pcg_dic](30_ldu_pcg_dic/README.md) | pcg / dic | ldu | `diffusion_1m.csrpat` |
-| [31_ldu_bicgstab_dilu](31_ldu_bicgstab_dilu/README.md) | bicgstab / dilu | ldu | `transport_1m.csrpat` |
-| [32_complex_batch3](32_complex_batch3/README.md) | fgmres_complex_batch / none | csr | `complex_262k_3rhs.csrpat` |
+| [01_cg](01_cg/README.md) | cg / none | csr | double |
+| [02_bicg](02_bicg/README.md) | bicg / none | csr | double |
+| [03_bicgstab](03_bicgstab/README.md) | bicgstab / none | csr | double |
+| [04_gmres](04_gmres/README.md) | gmres / none | csr | double |
+| [05_fgmres](05_fgmres/README.md) | fgmres / none | csr | double |
+| [06_gcr](06_gcr/README.md) | gcr / none | csr | double |
+| [07_pcg_jacobi](07_pcg_jacobi/README.md) | pcg / jacobi | csr | double |
+| [08_fcg_jacobi](08_fcg_jacobi/README.md) | fcg / jacobi | csr | double |
+| [09_bicg_jacobi](09_bicg_jacobi/README.md) | bicg / jacobi | csr | double |
+| [10_bicgstab_jacobi](10_bicgstab_jacobi/README.md) | bicgstab / jacobi | csr | double |
+| [11_gmres_jacobi](11_gmres_jacobi/README.md) | gmres / jacobi | csr | double |
+| [12_fgmres_jacobi](12_fgmres_jacobi/README.md) | fgmres / jacobi | csr | double |
+| [13_gcr_jacobi](13_gcr_jacobi/README.md) | gcr / jacobi | csr | double |
+| [14_bicg_ilu0](14_bicg_ilu0/README.md) | bicg / ilu0 | csr | double |
+| [15_bicgstab_ilu0](15_bicgstab_ilu0/README.md) | bicgstab / ilu0 | csr | double |
+| [16_gmres_ilu0](16_gmres_ilu0/README.md) | gmres / ilu0 | csr | double |
+| [17_fgmres_ilu0](17_fgmres_ilu0/README.md) | fgmres / ilu0 | csr | double |
+| [18_gcr_ilu0](18_gcr_ilu0/README.md) | gcr / ilu0 | csr | double |
+| [19_pcg_ic0](19_pcg_ic0/README.md) | pcg / ic0 | csr | double |
+| [20_fcg_ic0](20_fcg_ic0/README.md) | fcg / ic0 | csr | double |
+| [21_gmres_ic0](21_gmres_ic0/README.md) | gmres / ic0 | csr | double |
+| [22_fgmres_ic0](22_fgmres_ic0/README.md) | fgmres / ic0 | csr | double |
+| [23_bicgstab_ic0](23_bicgstab_ic0/README.md) | bicgstab / ic0 | csr | double |
+| [24_bicg_ic0](24_bicg_ic0/README.md) | bicg / ic0 | csr | double |
+| [25_gcr_ic0](25_gcr_ic0/README.md) | gcr / ic0 | csr | double |
+| [26_bsr4_fgmres_ilu0](26_bsr4_fgmres_ilu0/README.md) | fgmres / ilu0 | bsr | double |
+| [27_bsr4_fgmres_jacobi](27_bsr4_fgmres_jacobi/README.md) | fgmres / block_jacobi | bsr | double |
+| [28_bsr4_fgmres_dilu](28_bsr4_fgmres_dilu/README.md) | fgmres / multicolor_block_dilu | bsr | double |
+| [29_msr_bicgstab_jacobi](29_msr_bicgstab_jacobi/README.md) | bicgstab / jacobi | msr | double |
+| [30_ldu_pcg_dic](30_ldu_pcg_dic/README.md) | pcg / dic | ldu | double |
+| [31_ldu_bicgstab_dilu](31_ldu_bicgstab_dilu/README.md) | bicgstab / dilu | ldu | double |
+| [32_complex_batch3](32_complex_batch3/README.md) | fgmres_complex_batch / none | csr | double complex |
+| [33_float_fgmres_ilu0](33_float_fgmres_ilu0/README.md) | fgmres / ilu0 | csr | float（应用侧） |
+| [34_float_complex_batch3](34_float_complex_batch3/README.md) | fgmres_complex_batch / none | csr | float complex（应用侧） |
+| [35_dd_fgmres_amg](35_dd_fgmres_amg/README.md) | DD-FGMRES / LinglongAMG | csr | double 输入，Double-Double 解 |
+
+“数据格式”指调用方在应用侧保存 A、b 和 x 时使用的类型：
+
+- `float` 和 `float complex` 样例会显式填充 FP64 描述符。当前公开接口的矩阵系数
+  按 FP64 接收，因此这两个样例演示数据存储与接口衔接，不声称底层使用 FP32 算术。
+- `double complex` 使用 `xianzhikrylov_complex`，其中实部和虚部均为 `double`。
+- Double-Double 样例的矩阵系数和 b 为 FP64，解由两个 `double` 平面表示，
+  有效精度约 106～108 位；它不是 DD 系数矩阵。
 
 ## 运行前需要什么
 
@@ -239,7 +257,7 @@ make run XK_BACKEND=1
 
 海光平台仍然把 `XK_BACKEND` 改成 `2`。其他样例也按相同方式进入目录后编译。
 
-如果要一次编译全部 32 个样例：
+如果要一次编译全部 35 个样例：
 
 ```bash
 cd samples

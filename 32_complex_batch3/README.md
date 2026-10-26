@@ -1,6 +1,8 @@
-# fgmres_complex_batch
+# double complex + fgmres_complex_batch
 
 使用 **复数批量 FGMRES（3 RHS）＋过滤、行缩放 FP32 ILU(0)** 求解 `Ax=b`，默认零初值。
+本例的 A、b 和 x 使用 `xianzhikrylov_complex`，实部和虚部都是 double；
+“FP32 ILU(0)”是复数批量路线内部的预条件实现，不改变输入数据的 double complex 类型。
 
 ## 运行这个样例
 
@@ -131,7 +133,7 @@ make run XK_ROOT="$XK_ROOT" XK_BACKEND=1
 `.csrpat` 只保存稀疏模式、模型编号和固定 seed，不保存 A 的值。程序读入模式后确定性生成 A，并用已知精确解构造 b：实数系统使用 x=1，复数多 RHS 使用三个不同的常数复向量。生成过程不使用时间、设备编号或随机设备。
 
 大型测试矩阵由 `samples/data/` 共享。本目录 `data/` 中的矩阵文件使用包内相对链接，避免复制
-32 份数据。将单个样例复制到其他位置时，请同时提供矩阵路径，或另行复制所需数据。
+35 份数据。将单个样例复制到其他位置时，请同时提供矩阵路径，或另行复制所需数据。
 
 该矩阵是一般系统，实际收敛仍取决于矩阵和预条件。
 

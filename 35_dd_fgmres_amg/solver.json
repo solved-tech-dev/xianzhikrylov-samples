@@ -1,0 +1,14 @@
+{
+  "extended_solver": {
+    "method": "fgmres_dd",
+    "provider": "linglongamg",
+    "library_path": "/absolute/path/to/liblinglongamg.so",
+    "config_path": "/absolute/path/to/linglongamg-config.json",
+    "restart": 8,
+    "max_cycles": 32,
+    "relative_tolerance": 1e-10,
+    "spmv_width": 4,
+    "mgs_passes": 1,
+    "inner_method": "fgmres4"
+  }
+}
