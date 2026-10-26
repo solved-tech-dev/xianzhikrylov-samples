@@ -54,7 +54,7 @@ You can download XianzhiKrylov packages and licenses from
 | [32_complex_batch3](32_complex_batch3/README.md) | fgmres_complex_batch / none | CSR | double complex |
 | [33_float_fgmres_ilu0](33_float_fgmres_ilu0/README.md) | fgmres / ilu0 | CSR | float |
 | [34_float_complex_batch3](34_float_complex_batch3/README.md) | fgmres_complex_batch / none | CSR | float complex |
-| [35_dd_fgmres_amg](35_dd_fgmres_amg/README.md) | DD-FGMRES / LinglongAMG | CSR | double input / Double-Double solution |
+| [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES / LinglongAMG | CSR | double input / Double-Double solution |
 
 The float and float-complex samples convert their data to the FP64 and
 complex-FP64 descriptors needed by the current public C API. This does not mean

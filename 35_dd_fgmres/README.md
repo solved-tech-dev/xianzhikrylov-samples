@@ -44,11 +44,11 @@ XianzhiKrylov/
 Change `/path/to` to the directory where you extracted the package:
 
 ```bash
-cd /path/to/XianzhiKrylov/samples/35_dd_fgmres_amg
+cd /path/to/XianzhiKrylov/samples/35_dd_fgmres
 pwd
 ```
 
-The final directory printed by `pwd` should be `35_dd_fgmres_amg`. If the directory does not
+The final directory printed by `pwd` should be `35_dd_fgmres`. If the directory does not
 exist, run `cd /path/to/XianzhiKrylov/samples` and `ls` to list the samples.
 
 ### 2. Check the license

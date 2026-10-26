@@ -438,13 +438,13 @@
     "data_format": "float complex"
   },
   {
-    "name": "dd_fgmres_amg",
+    "name": "dd_fgmres",
     "method": "fgmres_dd",
     "format": "csr",
     "block": 1,
     "spd": true,
     "data": "diffusion_1m.csrpat",
-    "id": "35_dd_fgmres_amg",
+    "id": "35_dd_fgmres",
     "pattern_model": 1,
     "pattern_seed": "584b32364d415447",
     "data_format": "double input / Double-Double solution"
