@@ -67,13 +67,14 @@ coefficients and returns a solution in two double planes.
 Before running a sample, make sure you have:
 
 - a Linux machine supported by the XianzhiKrylov package;
-- a GPU driver and vendor runtime compatible with that package;
+- a GPU vendor toolkit version compatible with that package;
 - a C compiler and GNU Make;
 - a valid license for the installed GPU.
 
 A package is compatible when its documentation lists your CPU architecture,
-GPU model or architecture, and CUDA/DTK/MUSA runtime version. A newer runtime
-is not automatically supported. See the package README for the exact versions.
+GPU model or architecture, and CUDA Toolkit/DTK/MUSA SDK version. A newer
+toolkit is not automatically supported. GPU driver selection is outside this
+repository; use the driver supplied by the target system.
 
 CMake is not required.
 
@@ -307,12 +308,14 @@ Check every item below against the package README:
 | Linux C library | Meets the minimum glibc version stated in the package documentation. |
 | GPU vendor and backend | The package backend is CUDA, HIP, MUSA, SYCL, OpenCL, HCR, or another documented backend that supports the installed GPU. |
 | GPU architecture | The GPU model or compiled target is listed as supported by the package, such as a CUDA SM target or Hygon `gfx` target. |
-| Vendor runtime | The installed CUDA, DTK, MUSA, SYCL, OpenCL, or HCR runtime belongs to a version compatible with the package. |
-| Driver | The installed driver supports the required vendor runtime and exposes the selected GPU. |
+| Vendor toolkit | The installed CUDA Toolkit, DTK, MUSA SDK, or other vendor toolkit version is supported by the package. |
 
 The package documentation is authoritative for version-specific and
-architecture-specific support. A newer vendor runtime is not automatically
+architecture-specific support. A newer vendor toolkit is not automatically
 compatible unless the package documentation says so.
+
+GPU driver installation and driver-version selection are outside this
+repository. Use the driver supplied by the target system or platform provider.
 
 The license is a separate requirement: it must match the machine, GPU, and
 product for which it was issued.
