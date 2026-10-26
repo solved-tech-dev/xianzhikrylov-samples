@@ -1,119 +1,102 @@
 # XianzhiKrylov Samples
 
-本仓库包含 35 个相互独立的 C 样例，用来演示 XianzhiKrylov C 接口的完整调用过程：
-读取矩阵 A 和右端向量 b、上传数据、准备求解器、求解、取回解，并在 CPU 上检查残差。
+This repository contains 35 independent C samples for the XianzhiKrylov C API.
+Each sample demonstrates the complete call sequence: construct A and b, attach
+the system, prepare the solver, solve, download x, and verify the residual.
 
-每个目录中的文件含义相同：
+Each directory contains:
 
-- `sample.c`：可以编译运行的程序；
-- `sample_common.h`：示例程序使用的矩阵读取、格式转换和残差检查代码；
-- `solver.json`：本样例使用的迭代法和预条件器；
-- `Makefile`：用一条命令完成编译；
-- `README.md`：本样例的简明运行说明；
-- `data/`：其中放置指向共享样例矩阵的相对链接。
+- `sample.c`: the runnable sample program;
+- `sample_common.h`: sample-only matrix reading, format conversion, and residual checks;
+- `solver.json`: configuration file that selects the iterative method and preconditioner;
+- `Makefile`: build and run commands;
+- `README.md`: instructions for that sample;
+- `data/`: contains a relative link to the shared sample matrix.
 
-库软件包和授权文件请从
-[https://store.solved-tech.com/](https://store.solved-tech.com/) 下载。
+XianzhiKrylov packages and licenses are available from
+[https://store.solved-tech.com/](https://store.solved-tech.com/).
 
-## 不知道选哪个样例时
+## Samples List
 
-先运行 `17_fgmres_ilu0`。它使用一般非对称 CSR 矩阵和常用的
-FGMRES + ILU(0) 组合，适合第一次确认软件包、授权、GPU 运行环境和编译环境是否正常。
-
-常见选择如下：
-
-- 对称正定系统：`01_cg`、`07_pcg_jacobi` 或 `19_pcg_ic0`；
-- 一般非对称系统：`17_fgmres_ilu0`；
-- BSR 块矩阵：`26_bsr4_fgmres_ilu0`；
-- 复数多右端项：`32_complex_batch3`。
-
-如果主要想了解数据格式如何接入：
-
-- float 应用数据：`33_float_fgmres_ilu0`；
-- float complex 应用数据：`34_float_complex_batch3`；
-- double complex：`32_complex_batch3`；
-- Double-Double 解：`35_dd_fgmres_amg`。
-
-| 样例 | 求解路线（迭代法 / 预条件器） | 矩阵格式 | 数据格式 |
+| Sample | Solver route | Matrix format | Data format |
 | --- | --- | --- | --- |
-| [01_cg](01_cg/README.md) | cg / none | csr | double |
-| [02_bicg](02_bicg/README.md) | bicg / none | csr | double |
-| [03_bicgstab](03_bicgstab/README.md) | bicgstab / none | csr | double |
-| [04_gmres](04_gmres/README.md) | gmres / none | csr | double |
-| [05_fgmres](05_fgmres/README.md) | fgmres / none | csr | double |
-| [06_gcr](06_gcr/README.md) | gcr / none | csr | double |
-| [07_pcg_jacobi](07_pcg_jacobi/README.md) | pcg / jacobi | csr | double |
-| [08_fcg_jacobi](08_fcg_jacobi/README.md) | fcg / jacobi | csr | double |
-| [09_bicg_jacobi](09_bicg_jacobi/README.md) | bicg / jacobi | csr | double |
-| [10_bicgstab_jacobi](10_bicgstab_jacobi/README.md) | bicgstab / jacobi | csr | double |
-| [11_gmres_jacobi](11_gmres_jacobi/README.md) | gmres / jacobi | csr | double |
-| [12_fgmres_jacobi](12_fgmres_jacobi/README.md) | fgmres / jacobi | csr | double |
-| [13_gcr_jacobi](13_gcr_jacobi/README.md) | gcr / jacobi | csr | double |
-| [14_bicg_ilu0](14_bicg_ilu0/README.md) | bicg / ilu0 | csr | double |
-| [15_bicgstab_ilu0](15_bicgstab_ilu0/README.md) | bicgstab / ilu0 | csr | double |
-| [16_gmres_ilu0](16_gmres_ilu0/README.md) | gmres / ilu0 | csr | double |
-| [17_fgmres_ilu0](17_fgmres_ilu0/README.md) | fgmres / ilu0 | csr | double |
-| [18_gcr_ilu0](18_gcr_ilu0/README.md) | gcr / ilu0 | csr | double |
-| [19_pcg_ic0](19_pcg_ic0/README.md) | pcg / ic0 | csr | double |
-| [20_fcg_ic0](20_fcg_ic0/README.md) | fcg / ic0 | csr | double |
-| [21_gmres_ic0](21_gmres_ic0/README.md) | gmres / ic0 | csr | double |
-| [22_fgmres_ic0](22_fgmres_ic0/README.md) | fgmres / ic0 | csr | double |
-| [23_bicgstab_ic0](23_bicgstab_ic0/README.md) | bicgstab / ic0 | csr | double |
-| [24_bicg_ic0](24_bicg_ic0/README.md) | bicg / ic0 | csr | double |
-| [25_gcr_ic0](25_gcr_ic0/README.md) | gcr / ic0 | csr | double |
-| [26_bsr4_fgmres_ilu0](26_bsr4_fgmres_ilu0/README.md) | fgmres / ilu0 | bsr | double |
-| [27_bsr4_fgmres_jacobi](27_bsr4_fgmres_jacobi/README.md) | fgmres / block_jacobi | bsr | double |
-| [28_bsr4_fgmres_dilu](28_bsr4_fgmres_dilu/README.md) | fgmres / multicolor_block_dilu | bsr | double |
-| [29_msr_bicgstab_jacobi](29_msr_bicgstab_jacobi/README.md) | bicgstab / jacobi | msr | double |
-| [30_ldu_pcg_dic](30_ldu_pcg_dic/README.md) | pcg / dic | ldu | double |
-| [31_ldu_bicgstab_dilu](31_ldu_bicgstab_dilu/README.md) | bicgstab / dilu | ldu | double |
-| [32_complex_batch3](32_complex_batch3/README.md) | fgmres_complex_batch / none | csr | double complex |
-| [33_float_fgmres_ilu0](33_float_fgmres_ilu0/README.md) | fgmres / ilu0 | csr | float（应用侧） |
-| [34_float_complex_batch3](34_float_complex_batch3/README.md) | fgmres_complex_batch / none | csr | float complex（应用侧） |
-| [35_dd_fgmres_amg](35_dd_fgmres_amg/README.md) | DD-FGMRES / LinglongAMG | csr | double 输入，Double-Double 解 |
+| [01_cg](01_cg/README.md) | cg / none | CSR | double |
+| [02_bicg](02_bicg/README.md) | bicg / none | CSR | double |
+| [03_bicgstab](03_bicgstab/README.md) | bicgstab / none | CSR | double |
+| [04_gmres](04_gmres/README.md) | gmres / none | CSR | double |
+| [05_fgmres](05_fgmres/README.md) | fgmres / none | CSR | double |
+| [06_gcr](06_gcr/README.md) | gcr / none | CSR | double |
+| [07_pcg_jacobi](07_pcg_jacobi/README.md) | pcg / jacobi | CSR | double |
+| [08_fcg_jacobi](08_fcg_jacobi/README.md) | fcg / jacobi | CSR | double |
+| [09_bicg_jacobi](09_bicg_jacobi/README.md) | bicg / jacobi | CSR | double |
+| [10_bicgstab_jacobi](10_bicgstab_jacobi/README.md) | bicgstab / jacobi | CSR | double |
+| [11_gmres_jacobi](11_gmres_jacobi/README.md) | gmres / jacobi | CSR | double |
+| [12_fgmres_jacobi](12_fgmres_jacobi/README.md) | fgmres / jacobi | CSR | double |
+| [13_gcr_jacobi](13_gcr_jacobi/README.md) | gcr / jacobi | CSR | double |
+| [14_bicg_ilu0](14_bicg_ilu0/README.md) | bicg / ilu0 | CSR | double |
+| [15_bicgstab_ilu0](15_bicgstab_ilu0/README.md) | bicgstab / ilu0 | CSR | double |
+| [16_gmres_ilu0](16_gmres_ilu0/README.md) | gmres / ilu0 | CSR | double |
+| [17_fgmres_ilu0](17_fgmres_ilu0/README.md) | fgmres / ilu0 | CSR | double |
+| [18_gcr_ilu0](18_gcr_ilu0/README.md) | gcr / ilu0 | CSR | double |
+| [19_pcg_ic0](19_pcg_ic0/README.md) | pcg / ic0 | CSR | double |
+| [20_fcg_ic0](20_fcg_ic0/README.md) | fcg / ic0 | CSR | double |
+| [21_gmres_ic0](21_gmres_ic0/README.md) | gmres / ic0 | CSR | double |
+| [22_fgmres_ic0](22_fgmres_ic0/README.md) | fgmres / ic0 | CSR | double |
+| [23_bicgstab_ic0](23_bicgstab_ic0/README.md) | bicgstab / ic0 | CSR | double |
+| [24_bicg_ic0](24_bicg_ic0/README.md) | bicg / ic0 | CSR | double |
+| [25_gcr_ic0](25_gcr_ic0/README.md) | gcr / ic0 | CSR | double |
+| [26_bsr4_fgmres_ilu0](26_bsr4_fgmres_ilu0/README.md) | fgmres / ilu0 | BSR4 | double |
+| [27_bsr4_fgmres_jacobi](27_bsr4_fgmres_jacobi/README.md) | fgmres / block_jacobi | BSR4 | double |
+| [28_bsr4_fgmres_dilu](28_bsr4_fgmres_dilu/README.md) | fgmres / multicolor_block_dilu | BSR4 | double |
+| [29_msr_bicgstab_jacobi](29_msr_bicgstab_jacobi/README.md) | bicgstab / jacobi | MSR | double |
+| [30_ldu_pcg_dic](30_ldu_pcg_dic/README.md) | pcg / dic | LDU | double |
+| [31_ldu_bicgstab_dilu](31_ldu_bicgstab_dilu/README.md) | bicgstab / dilu | LDU | double |
+| [32_complex_batch3](32_complex_batch3/README.md) | fgmres_complex_batch / none | CSR | double complex |
+| [33_float_fgmres_ilu0](33_float_fgmres_ilu0/README.md) | fgmres / ilu0 | CSR | float |
+| [34_float_complex_batch3](34_float_complex_batch3/README.md) | fgmres_complex_batch / none | CSR | float complex |
+| [35_dd_fgmres_amg](35_dd_fgmres_amg/README.md) | DD-FGMRES / LinglongAMG | CSR | double input / Double-Double solution |
 
-“数据格式”指调用方在应用侧保存 A、b 和 x 时使用的类型：
+The float and float-complex samples explicitly promote their sample buffers to
+the FP64 and complex-FP64 descriptors required by the current public matrix
+interface. They demonstrate how those data formats connect to the library; they
+do not claim native FP32 solver arithmetic. The DD sample uses FP64 matrix
+coefficients and returns a solution in two double planes.
 
-- `float` 和 `float complex` 样例会显式填充 FP64 描述符。当前公开接口的矩阵系数
-  按 FP64 接收，因此这两个样例演示数据存储与接口衔接，不声称底层使用 FP32 算术。
-- `double complex` 使用 `xianzhikrylov_complex`，其中实部和虚部均为 `double`。
-- Double-Double 样例的矩阵系数和 b 为 FP64，解由两个 `double` 平面表示，
-  有效精度约 106～108 位；它不是 DD 系数矩阵。
+## Requirements
 
-## 运行前需要什么
+You need a Linux system with:
 
-一台已经安装好 GPU 驱动和对应厂商工具包的 Linux 机器，以及：
+- a matching GPU driver and vendor toolkit;
+- a matching XianzhiKrylov package;
+- a C compiler;
+- GNU Make;
+- a valid XianzhiKrylov license for the selected GPU.
 
-- 一个与当前 GPU 和系统匹配的 XianzhiKrylov 软件包；
-- 一个 C 编译器；
-- GNU Make；
-- 一个签发给当前 GPU、当前软件包并在有效期内的授权文件。
+When the extracted XianzhiKrylov package already contains `include/`, `lib/`,
+and `samples/`, no additional build system is required. CMake is not required.
 
-软件包已经包含 `include/`、`lib/`、`samples/` 时，不需要另外安装
-CMake，也不需要修改源码。
-
-可以先检查用到的两个命令是否存在：
+Check the compiler and Make:
 
 ```bash
 cc --version
 make --version
 ```
 
-如果系统提示 `command not found`，Ubuntu/Debian 可安装基础编译工具：
+On Ubuntu or Debian, missing build tools can be installed with:
 
 ```bash
 sudo apt update
 sudo apt install build-essential
 ```
 
-其他 Linux 发行版请使用各自的软件包管理命令安装 C 编译器、链接器和 GNU Make。
+Use the equivalent package manager on other Linux distributions.
 
-## 第一次运行：照着做
+## First Run
 
-下面的例子使用 `17_fgmres_ilu0`，并假设 XianzhiKrylov 软件包已经下载到
-`~/Downloads`。
+The following example uses `17_fgmres_ilu0`. It assumes that the package was
+downloaded to `~/Downloads`.
 
-### 第 1 步：解压并进入软件包
+### Step 1: Extract and enter the package
 
 ```bash
 cd ~/Downloads
@@ -121,11 +104,11 @@ tar -xzf xianzhikrylov-*.tar.gz
 cd XianzhiKrylov
 ```
 
-不同软件包解压后的目录名可能略有不同。如果 `cd XianzhiKrylov` 失败，先执行
-`ls` 查看解压出来的目录，再进入其中包含 `include/`、`lib/` 和 `samples/`
-的那一层。
+The extracted directory name can differ between packages. If `cd XianzhiKrylov`
+fails, run `ls`, then enter the directory containing `include/`, `lib/`, and
+`samples/`.
 
-确认目录没有解压错：
+Verify the package:
 
 ```bash
 pwd
@@ -135,64 +118,60 @@ test -f lib/libXianzhiKrylov.so && echo "lib OK"
 test -d samples && echo "samples OK"
 ```
 
-三条检查都显示 `OK` 后继续。
-只要有一条没有显示 `OK`，就说明软件包没有完整解压，不要继续执行后面的命令。
+All three checks must print `OK`.
 
-### 第 2 步：放好授权文件
+### Step 2: Install the license
 
-只有一台机器时，把收到的 `.license.key` 文件复制到软件包根目录并命名为
-`license.key`：
+For a single-device license, copy the received `.license.key` file to the
+package root:
 
 ```bash
-cp /你的授权文件目录/xianzhikrylov-xxxx.license.key ./license.key
+cp /path/to/xianzhikrylov-xxxx.license.key ./license.key
 chmod 600 ./license.key
 ls -l ./license.key
 ```
 
-把命令中的 `/你的授权文件目录/xianzhikrylov-xxxx.license.key` 换成实际文件名。
-
-有多份设备授权时，也可以放在软件包根目录的 `licenses/` 下：
+For multiple device licenses, place the key files under `licenses/`:
 
 ```bash
 mkdir -p licenses
-cp /你的授权文件目录/*.license.key licenses/
+cp /path/to/*.license.key licenses/
 ls -l licenses/
 ```
 
-如果下载到的是 `.licenses.zip` 压缩包，也可以直接解压到该目录：
+If the license arrives in a ZIP file:
 
 ```bash
-unzip /你的授权文件目录/xianzhikrylov-xxxx.licenses.zip -d licenses
+unzip /path/to/xianzhikrylov-xxxx.licenses.zip -d licenses
 find licenses -type f -name "*.key" -print
 ```
 
-`find` 至少应列出授权文件。授权 `.key` 文件需要直接放在 `licenses/` 目录中；
-如果压缩包多套了一层目录，请把其中的 `.key` 文件移动到 `licenses/` 下。
+The `.key` files must be directly inside `licenses/`. If the archive creates an
+extra directory level, move the key files up one level.
 
-授权文件必须与当前机器、GPU 和软件包匹配。不要修改授权文件内容。
+The license must match the machine, GPU, and package. Do not edit its contents.
 
-如果你在集群上运行，要先申请 GPU 并进入计算节点。不要在没有 GPU 的登录节点上运行
-求解程序。
+On a cluster, request a GPU and run the sample on a compute node. Do not run the
+solver on a login node without a GPU.
 
-### 第 3 步：确认 GPU 后端编号
+### Step 3: Select the GPU backend
 
-样例编译时需要传入 `XK_BACKEND`。常见编号为：
+The samples use `XK_BACKEND` to select the compiled backend:
 
-| GPU 后端 | 通常使用的 `XK_BACKEND` |
+| GPU backend | Common `XK_BACKEND` value |
 | --- | --- |
 | NVIDIA CUDA | `1` |
-| 海光 DCU / ROCm / HIP | `2` |
+| Hygon DCU / ROCm / HIP | `2` |
 | Moore Threads MUSA | `3` |
 | SYCL | `4` |
 | OpenCL | `5` |
 | HCR | `6` |
 
-以所下载软件包 README 标明的值为准。只要软件包没有使用特殊后端编号，下文的
-NVIDIA 示例使用 `1`，海光示例使用 `2`。
+If the package README specifies another number, use that value.
 
-### 第 4 步：编译
+### Step 4: Compile
 
-先固定软件包根目录，再进入推荐样例：
+From the package root:
 
 ```bash
 export XK_ROOT="$PWD"
@@ -201,51 +180,50 @@ make clean
 make XK_BACKEND=1
 ```
 
-海光平台将最后一行改为：
+For Hygon, replace the last command with:
 
 ```bash
 make XK_BACKEND=2
 ```
 
-其他平台把 `1` 或 `2` 换成软件包 README 中标明的编号。
+Compilation creates an executable named `sample`.
 
-编译成功时不会出现 `error`，并且本目录中会生成一个名为 `sample` 的可执行文件。
+### Step 5: Run
 
-### 第 5 步：运行
-
-NVIDIA：
+For NVIDIA:
 
 ```bash
 make run XK_BACKEND=1
 ```
 
-海光：
+For Hygon:
 
 ```bash
 make run XK_BACKEND=2
 ```
 
-正常运行时，终端中能看到类似以下内容：
+Successful output contains lines similar to:
 
 ```text
 XianzhiKrylov status=1 converged=1 ... relative_residual=...
 Independent residual RHS 1: relative_l2=... PASS
 ```
 
-最后一行包含 `PASS` 表示本程序在 CPU 上重新计算原系统的 `r=b-Ax` 并通过检查。
-`status=1 converged=1` 表示求解器达到 JSON 中配置的收敛条件。
+`status=1` and `converged=1` mean that the configured stopping criterion was
+reached. `PASS` means that the sample independently checked the original system
+`r=b-Ax` on the CPU.
 
-检查程序退出码：
+Check the exit code:
 
 ```bash
 echo $?
 ```
 
-显示 `0` 表示成功，其他值表示失败。
+An exit code of `0` means success.
 
-## 运行其他样例
+## Run Another Sample
 
-每个样例目录都可以独立编译和运行。例如运行纯 CG：
+Each sample directory can be built and run independently:
 
 ```bash
 cd ..
@@ -255,144 +233,153 @@ make XK_BACKEND=1
 make run XK_BACKEND=1
 ```
 
-海光平台仍然把 `XK_BACKEND` 改成 `2`。其他样例也按相同方式进入目录后编译。
-
-如果要一次编译全部 35 个样例：
+To build all samples:
 
 ```bash
-cd samples
+cd /path/to/XianzhiKrylov/samples
 make XK_BACKEND=1
 ```
 
-命令没有报错且正常结束时，表示全部样例已经编译完成；出现错误时，先查看最后一个
-`Error` 或 `error` 之前的目录名，再进入该目录单独排查。
+If a build fails, inspect the sample directory reported immediately before the
+last `error` or `Error` line.
 
-## 编译命令中的参数是什么意思
+## Command Reference
 
-- `make`：按照当前目录的 `Makefile` 编译程序，生成 `sample`。
-- `make run`：如果尚未编译，会先编译，然后运行；它会自动设置
-  XianzhiKrylov 动态库的查找路径。
-- `make clean`：删除之前生成的 `sample`，便于彻底重新编译。
-- `XK_BACKEND=1`：告诉样例当前软件包使用哪一种 GPU 后端。
-- `XK_ROOT=/绝对路径/XianzhiKrylov`：只在 Samples 不在软件包内时使用，指向包含
-  `include/`、`lib/` 的软件包根目录。
-- `GPU_RUNTIME_LIB_DIR=/绝对路径`：厂商运行时动态库不在系统默认搜索路径时使用。
+- `make`: compile the current sample into `./sample`;
+- `make run`: compile if needed, then run with the XianzhiKrylov library path;
+- `make clean`: remove the generated `sample`;
+- `XK_BACKEND=<n>`: select the GPU backend used at compile time;
+- `XK_ROOT=/path/to/XianzhiKrylov`: point a standalone Samples checkout at the
+  package containing `include/` and `lib/`;
+- `GPU_RUNTIME_LIB_DIR=/path/to/runtime/lib`: add a vendor runtime library
+  directory when it is not available in the system loader path.
 
-如果要从另外下载或克隆的 Samples 目录运行，先设置软件包位置：
+For a standalone Samples checkout:
 
 ```bash
-export XK_ROOT="/绝对路径/XianzhiKrylov"
-cd "/绝对路径/xianzhikrylov-samples/17_fgmres_ilu0"
+export XK_ROOT="/path/to/XianzhiKrylov"
+cd "/path/to/xianzhikrylov-samples/17_fgmres_ilu0"
 make clean
 make XK_ROOT="$XK_ROOT" XK_BACKEND=1
 make run XK_ROOT="$XK_ROOT" XK_BACKEND=1
 ```
 
-Samples 在软件包的 `samples/` 中时不需要设置 `XK_ROOT`，因为 Makefile 会自动使用
-`../..`。
+When `samples/` is inside the package, `XK_ROOT` is optional because each
+Makefile resolves the package root relative to its own directory.
 
-## 数据是怎样进入 GPU 的
+## Data Flow
 
-样例先在普通 CPU 内存中生成矩阵 A 和向量 b，并把它们标记为
-`XIANZHIKRYLOV_HOST`。程序调用 `xianzhikrylov_set_system` 时：
+The samples create A and b in ordinary CPU memory and mark both descriptors as
+`XIANZHIKRYLOV_HOST`.
 
-1. 库分配自己的 GPU 缓冲区；
-2. 库把 A、b 同步复制到 GPU；
-3. `solve_prepare` 和 `solve` 使用这些 GPU 数据；
-4. `solution_download` 把解复制回 CPU。
+1. `xianzhikrylov_init` creates the handle and selects the GPU backend.
+2. `xianzhikrylov_set_system` copies the host arrays into library-owned GPU
+   storage and synchronizes before returning.
+3. `xianzhikrylov_solve_prepare` and `xianzhikrylov_solve` use the GPU copies.
+4. `xianzhikrylov_solution_download` copies the solution back to a host buffer.
 
-因此应用代码不需要直接调用厂商复制函数。`set_system` 成功返回后，库不再依赖
-调用方原来的 A、b CPU 缓冲区。
+The library owns the uploaded A and b buffers, so the sample may release its
+temporary host copies after `set_system` returns.
 
-如果应用本来就把 A 或 b 放在 GPU 显存中，也可以改用
-`XIANZHIKRYLOV_DEVICE` 描述符。Samples 默认演示更容易使用的 `HOST` 方式。
+Applications that already store A or b in device memory can use
+`XIANZHIKRYLOV_DEVICE` descriptors instead. The samples use the host path because
+it works uniformly across the supported GPU vendors.
 
-## 样例矩阵有什么特点
+## Sample Data
 
-四个测试系统共用放在 `samples/data/` 下的模式文件。各样例 `data/` 目录中的矩阵文件
-是指向共享数据的相对链接，避免重复保存几十兆的数据。四个模式文件合计约 90 MiB。
+The four pattern files under `samples/data/` are shared by all 35 samples. The
+matrix file inside each `data/` directory is a relative symbolic link to one of
+those files. The four pattern files occupy about 90 MiB.
 
-`.csrpat` 只保存稀疏模式、矩阵阶数、行列索引、模型类型和固定种子，不保存 A 的数值，
-也不保存 b。程序运行时用固定算法生成 A，并通过已知精确解构造 `b=A*x_exact`：
+`.csrpat` stores the matrix order, CSR row offsets and column indices, scalar
+class, model identifier, fixed seed, and RHS count. It does not store A values or
+b. `sample_common.h` generates A deterministically and constructs
+`b=A*x_exact`:
 
-- 实数系统使用全 1 精确解；
-- 复数三右端项样例使用三个不同的常数复向量。
+- real systems use an exact solution of all ones;
+- the complex three-RHS sample uses three distinct constant complex vectors.
 
-每个样例最后都会在原系统上独立检查残差，不需要另外准备 b。
+Every sample downloads the computed solution and performs an independent
+residual check on the original system.
 
-`xianzhikrylov_print_info` 报告的库内准备和求解时间不包含 `set_system` 的上传；
-需要统计完整端到端时间时，应用应另行计入数据准备和 `set_system` 调用。
+`xianzhikrylov_print_info` reports preparation and solve time inside the library;
+the host-to-device transfer in `set_system` is not included. Applications that
+report complete end-to-end time should account for their own preparation and the
+`set_system` call separately.
 
-`.csrpat` 的完整二进制格式见 [`PATTERN_FORMAT.md`](PATTERN_FORMAT.md)。
+See [`PATTERN_FORMAT.md`](PATTERN_FORMAT.md) for the binary format.
 
-## 遇到问题先检查什么
+## Troubleshooting
 
 ### `XianzhiKrylovAPI.h: No such file or directory`
 
-当前目录不是正确的软件包。先执行 `ls`，确认能看到 `include/` 和 `lib/`。
-如果 Samples 不在软件包内，给 `make` 和 `make run` 都加上：
+The build is not pointing at the package root. Check that the directory contains
+`include/` and `lib/`. For a standalone Samples checkout, pass:
 
 ```bash
-XK_ROOT="/绝对路径/XianzhiKrylov"
+XK_ROOT="/path/to/XianzhiKrylov"
 ```
+
+to both `make` and `make run`.
 
 ### `Missing library: lib/libXianzhiKrylov.so`
 
-软件包不完整，或者 `XK_ROOT` 指向了错误目录。检查：
+The package is incomplete or `XK_ROOT` is incorrect:
 
 ```bash
 ls -l "$XK_ROOT/lib/libXianzhiKrylov.so"
 ```
 
-### 运行时报 `cannot open shared object file`
+### `cannot open shared object file`
 
-通常是厂商运行时库没有在动态库搜索路径中。先按软件包 README 找到运行时库目录，
-再执行，例如：
+A vendor runtime library is missing from the loader path. Find the runtime
+directory in the package README, then run:
 
 ```bash
-export GPU_RUNTIME_LIB_DIR="/厂商运行时库目录"
+export GPU_RUNTIME_LIB_DIR="/path/to/vendor/runtime/lib"
 make run XK_BACKEND=1 GPU_RUNTIME_LIB_DIR="$GPU_RUNTIME_LIB_DIR"
 ```
 
-不要从其他厂商的软件包复制 `.so` 文件来替换当前文件。
+Do not copy a `.so` file from a package built for another vendor.
 
-### `init status=11` 或 `LICENSE_ERROR`
+### `init status=11` or `LICENSE_ERROR`
 
-表示授权检查失败。依次检查：
+The authorization check failed. Check:
 
-- 软件包根目录是否存在 `license.key` 或 `licenses/*.key`；
-- 授权是否过期；
-- 授权是否签发给当前机器和 GPU；
-- 使用的软件包厂商和版本是否正确；
-- 系统时间、用户目录和授权文件是否被修改。
+- `license.key` or `licenses/*.key` exists in the package root;
+- the license has not expired;
+- the license was issued for this machine and GPU;
+- the package vendor and version match the license;
+- the system time and license file have not been modified.
 
-不要通过修改 JSON 或替换动态库绕过授权错误。
+Do not edit the JSON file or replace the library to bypass an authorization
+error.
 
-### `init status=5` 或提示 backend 不支持
+### The backend is unsupported
 
-`XK_BACKEND` 编号与当前软件包不一致。查看当前软件包 README，把编号改为该后端
-对应的值。
+The `XK_BACKEND` value does not match the selected package. Use the number
+documented in the package README.
 
-### `data/... No such file or directory`
+### A matrix path does not exist
 
-样例目录 `data/` 中的矩阵文件链接没有随仓库或压缩包正确保留。确认从 `samples/`
-下的共享 `data/` 目录运行，或者手动传入真实矩阵文件的绝对路径：
+The relative link under `data/` was not preserved. Run from the original Git
+checkout or extracted `.tar.gz`, or pass an absolute matrix path directly:
 
 ```bash
-./sample /绝对路径/矩阵文件.csrpat solver.json
+./sample /absolute/path/to/matrix.csrpat solver.json
 ```
 
-从普通 ZIP 文件解压时可能丢失符号链接，推荐使用 Git 仓库或原始 `.tar.gz`。
+Some ZIP tools do not preserve symbolic links.
 
 ### `solve status=2`
 
-求解达到最大迭代次数，但没有失败到无法继续。先运行 `17_fgmres_ilu0` 确认环境；
-如果换成自己的矩阵，需要根据矩阵性质调整 `solver.json` 中的求解方法、预条件器、
-重启长度或最大迭代次数。
+The solver reached its maximum iteration count. Check the environment first with
+`17_fgmres_ilu0`. For a different matrix, adjust the method, preconditioner,
+restart length, or iteration limit in `solver.json`.
 
-### 修改样例后没有生效
+### Source changes do not take effect
 
-先清理再重新编译：
+Recompile from a clean state:
 
 ```bash
 make clean

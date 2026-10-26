@@ -1,10 +1,12 @@
-# bicg + ilu0
+# BiCG with ILU(0)
 
-使用 **bicg＋ilu0** 求解 `Ax=b`，默认零初值。
+This sample solves `Ax=b` with **BiCG** and **ILU(0)** preconditioning.
+Matrix format: `CSR`. Data format: `double`.
 
-## 运行这个样例
+## Run this sample
 
-下面的命令针对已经解压、并且包含以下三个目录的 XianzhiKrylov 软件包：
+The commands below assume that `samples/` is located inside an extracted
+XianzhiKrylov package:
 
 ```text
 XianzhiKrylov/
@@ -13,127 +15,137 @@ XianzhiKrylov/
 └── samples/
 ```
 
-### 1. 进入本样例
+### 1. Enter this sample
 
-把 `/解压位置` 换成你的实际解压目录：
+Replace `/path/to` with the directory where the package was extracted:
 
 ```bash
-cd /解压位置/XianzhiKrylov/samples/14_bicg_ilu0
+cd /path/to/XianzhiKrylov/samples/14_bicg_ilu0
 pwd
 ```
 
-`pwd` 输出的最后一级目录应当是 `14_bicg_ilu0`。如果提示目录不存在，先用
-`cd /解压位置/XianzhiKrylov/samples` 和 `ls` 查看实际目录名。
+The final directory printed by `pwd` should be `14_bicg_ilu0`. If the directory does not
+exist, run `cd /path/to/XianzhiKrylov/samples` followed by `ls` to display the
+available sample directories.
 
-### 2. 确认授权已经放好
+### 2. Verify the license
 
-第一次使用 XianzhiKrylov 时，在软件包根目录放置授权文件：
+For a first run, place the license in the package root:
 
 ```bash
-cp /你的授权文件目录/xianzhikrylov-xxxx.license.key \
-  ../../license.key
+cp /path/to/xianzhikrylov-xxxx.license.key ../../license.key
 chmod 600 ../../license.key
 ls -l ../../license.key
 ```
 
-把授权文件名替换成实际名称。如果已经按
-[样例总说明](../README.md) 放好授权，可以跳过这一步。
+If you already placed a license according to the
+[main Samples guide](../README.md), skip this step.
 
-### 3. 编译
+### 3. Compile
 
-NVIDIA CUDA 平台执行：
+For NVIDIA CUDA:
 
 ```bash
 make clean
 make XK_BACKEND=1
 ```
 
-海光 DCU／ROCm 平台执行：
+For Hygon DCU, ROCm, or HIP:
 
 ```bash
 make clean
 make XK_BACKEND=2
 ```
 
-其他厂商平台请使用 [样例总说明](../README.md) 中的后端编号，把命令中的
-`1` 或 `2` 换成对应数字。编译成功后会生成名为 `sample` 的文件。
+For another vendor, replace the numeric value after `XK_BACKEND=` with the
+backend number documented in that vendor package.
 
-### 4. 运行
+Compilation creates an executable named `sample`.
 
-NVIDIA CUDA：
+### 4. Run
+
+NVIDIA CUDA:
 
 ```bash
 make run XK_BACKEND=1
 ```
 
-海光 DCU／ROCm：
+Hygon DCU, ROCm, or HIP:
 
 ```bash
 make run XK_BACKEND=2
 ```
 
-`make run` 会自动设置 XianzhiKrylov 和自己的 `lib/` 路径，不需要手工设置
-`LD_LIBRARY_PATH`。
+`make run` sets the XianzhiKrylov library path for the duration of the program.
+It is not necessary to edit `LD_LIBRARY_PATH` for the normal run.
 
-正常结束时应当看到类似内容：
+Successful output ends with a line similar to:
 
 ```text
-XianzhiKrylov status=1 converged=1 ... relative_residual=...
-Independent residual RHS 1: relative_l2=... PASS
+Independent residual RHS 1: relative_l2=... absmax=... PASS
 ```
 
-`PASS` 表示程序已经取回解，并在 CPU 上使用原矩阵重新检查了 `r=b-Ax`。
-
-检查退出码：
+`PASS` means that the program downloaded the solution and independently checked
+the original system `r=b-Ax` on the CPU. Check the process exit code with:
 
 ```bash
 echo $?
 ```
 
-显示 `0` 表示成功。
+An exit code of `0` means success.
 
-## 样例目录不在软件包内时
+## Build from a standalone Samples checkout
 
-如果当前 Samples 是另外从 Git 仓库克隆的，需要告诉 Makefile 软件包在哪里：
+When this directory is not inside the XianzhiKrylov package, point `XK_ROOT` at
+the directory containing `include/` and `lib/`:
 
 ```bash
-export XK_ROOT="/解压位置/XianzhiKrylov"
+export XK_ROOT="/path/to/XianzhiKrylov"
 make clean
 make XK_ROOT="$XK_ROOT" XK_BACKEND=1
 make run XK_ROOT="$XK_ROOT" XK_BACKEND=1
 ```
 
-海光平台仍把 `XK_BACKEND=1` 改成 `XK_BACKEND=2`。`XK_ROOT` 必须指向直接包含
-`include/` 和 `lib/` 的那一层目录。
+Replace `XK_BACKEND=1` with the backend number for the selected package.
 
-## 常见问题
+## Files
 
-- 找不到 `XianzhiKrylovAPI.h`：`XK_ROOT` 指向了错误目录，或者 Samples 与软件包
-  分开后没有设置 `XK_ROOT`。
-- 提示 `Missing library`：检查
-  `/解压位置/XianzhiKrylov/lib/libXianzhiKrylov.so` 是否存在。
-- 提示 `LICENSE_ERROR`、`init status=11`：检查 `../../license.key` 是否存在、
-  是否过期，以及是否签发给当前 GPU。
-- 提示 backend 不支持：`XK_BACKEND` 数字与当前软件包不一致。
-- 运行时报缺少厂商 `.so`：先按软件包 README 找到运行时库目录，再执行
-  `make run XK_BACKEND=1 GPU_RUNTIME_LIB_DIR="/厂商运行时库目录"`。
-- 修改源码后结果没有变化：先执行 `make clean`，再重新编译。
+- `sample.c`: complete call sequence through the public C API;
+- `sample_common.h`: sample-only matrix reading, conversion, and residual checks;
+- `solver.json`: configuration file that selects the iterative method and preconditioner;
+- `Makefile`: build and run commands;
+- `data/transport_1m.csrpat`: default sparse input pattern;
+- `README.md`: this run guide.
 
-更完整的入门步骤和错误处理见 [样例总说明](../README.md)。
+## Input data
 
-## 输入和数据
+The `.csrpat` files contain only the sparse pattern and deterministic generation
+metadata. Values for A are generated from a fixed seed, and b is constructed
+from a known exact solution. See
+[`../PATTERN_FORMAT.md`](../PATTERN_FORMAT.md) for the binary layout.
 
-- `sample.c`：调用公开七函数的完整示例。
-- `sample_common.h`：本样例使用的文件读取、格式转换和残差检查。
-- `solver.json`：求解方法和预条件参数。
-- `data/transport_1m.csrpat`：CSR 标量格式，一般系统。
+All 35 samples share the files under `../data/`. The matrix file in this
+directory is a relative symbolic link, so copying this directory elsewhere
+requires either copying the shared data directory or passing another matrix path
+to `sample`.
 
-`.csrpat` 只保存稀疏模式、模型编号和固定 seed，不保存 A 的值。程序读入模式后确定性生成 A，并用已知精确解构造 b：实数系统使用 x=1，复数多 RHS 使用三个不同的常数复向量。生成过程不使用时间、设备编号或随机设备。
+## Common problems
 
-大型测试矩阵由 `samples/data/` 共享。本目录 `data/` 中的矩阵文件使用包内相对链接，避免复制
-35 份数据。将单个样例复制到其他位置时，请同时提供矩阵路径，或另行复制所需数据。
+- `XianzhiKrylovAPI.h: No such file or directory`: set `XK_ROOT` to the package
+  root when samples and library are stored separately.
+- `Missing library`: verify that `XK_ROOT/lib/libXianzhiKrylov.so` exists.
+- `init status=11` or `LICENSE_ERROR`: check that the license exists, is current,
+  and was issued for this GPU.
+- Backend is unsupported: use the `XK_BACKEND` number documented by the selected
+  package.
+- A vendor runtime `.so` is missing: pass its directory through
+  `GPU_RUNTIME_LIB_DIR`:
 
-该矩阵是一般系统，实际收敛仍取决于矩阵和预条件。
+```bash
+make run XK_BACKEND=1 GPU_RUNTIME_LIB_DIR="/path/to/vendor/runtime/lib"
+```
 
-程序会在 CPU 上使用原始矩阵独立检查 `r=b−Ax`。只有接口返回成功且残差满足样例检查时，
-进程才返回 0。A 和 b 以 `XIANZHIKRYLOV_HOST` 描述符传给 `xianzhikrylov_set_system`，由库同步复制到 GPU。该调用返回后，库不再依赖调用方的 A、b CPU 缓冲区。`xianzhikrylov_print_info` 报告的准备／求解时间不包含这次上传；需要统计完整端到端时间时，应用应另行计入自己的数据准备和 `set_system` 调用。
+- Source changes do not take effect: run `make clean` before rebuilding.
+
+See the [main Samples guide](../README.md) for prerequisites, license setup, and
+more detailed troubleshooting.

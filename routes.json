@@ -424,7 +424,7 @@
     "id": "33_float_fgmres_ilu0",
     "pattern_model": 2,
     "pattern_seed": "584b32364d415447",
-    "data_format": "float application storage; explicit FP64 interface conversion"
+    "data_format": "float"
   },
   {
     "name": "float_complex_batch3",
@@ -435,7 +435,7 @@
     "id": "34_float_complex_batch3",
     "pattern_model": 4,
     "pattern_seed": "584b32364d415447",
-    "data_format": "float complex application storage; explicit complex-FP64 interface conversion"
+    "data_format": "float complex"
   },
   {
     "name": "dd_fgmres_amg",
@@ -447,6 +447,6 @@
     "id": "35_dd_fgmres_amg",
     "pattern_model": 1,
     "pattern_seed": "584b32364d415447",
-    "data_format": "double input; Double-Double solution"
+    "data_format": "double input / Double-Double solution"
   }
 ]
