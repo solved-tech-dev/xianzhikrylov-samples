@@ -229,6 +229,8 @@ its configured stopping criterion.
 
 If the solution object uses `XIANZHIKRYLOV_HOST`, the final solution is written
 directly to the caller's host buffer. No separate download function exists.
+A package returns `XIANZHIKRYLOV_UNSUPPORTED` if the selected route cannot
+publish directly to a requested device destination.
 
 Reuse rules:
 
