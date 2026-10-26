@@ -4,17 +4,56 @@ This repository contains 35 independent C samples for the XianzhiKrylov C API.
 Each sample shows how to pass A and b to XianzhiKrylov, run a solver, copy back
 x, and check the residual.
 
-Each directory contains:
-
-- `sample.c`: the runnable sample program;
-- `sample_common.h`: helper code that reads A and b, converts formats, and checks the result;
-- `solver.json`: configuration file that selects the iterative method and preconditioner;
-- `Makefile`: build and run commands;
-- `README.md`: a short guide for that sample;
-- `data/`: contains a relative link to the shared sample matrix.
-
 You can download XianzhiKrylov packages and licenses from
 [https://store.solved-tech.com/](https://store.solved-tech.com/).
+
+## Project Structure
+
+```text
+.
+├── README.md                  # sample list, setup, and general help
+├── Makefile                   # build or clean all samples
+├── PATTERN_FORMAT.md          # format of the .csrpat matrix files
+├── routes.json                # method and data settings for all samples
+├── data/
+│   ├── README.md              # size and model information for the data
+│   ├── diffusion_1m.csrpat
+│   ├── transport_1m.csrpat
+│   ├── coupled4_500k.csrpat
+│   └── complex_262k_3rhs.csrpat
+├── 01_cg/
+│   ├── sample.c               # runnable C program for this route
+│   ├── sample_common.h         # local helper code used by sample.c
+│   ├── solver.json            # iterative method and preconditioner settings
+│   ├── Makefile               # build and run this sample
+│   ├── README.md              # short guide for this sample
+│   └── data/
+│       └── diffusion_1m.csrpat -> ../../data/diffusion_1m.csrpat
+├── ...
+└── 35_dd_fgmres/
+    ├── sample.c
+    ├── sample_common.h
+    ├── solver.json
+    ├── Makefile
+    ├── README.md
+    └── data/
+        └── diffusion_1m.csrpat -> ../../data/diffusion_1m.csrpat
+```
+
+The files work as follows:
+
+- `README.md`: this file, which lists all samples and gives the first-run steps;
+- `Makefile` at the top level: builds or cleans all 35 samples;
+- `PATTERN_FORMAT.md`: explains how a `.csrpat` file is stored;
+- `routes.json`: lists the method, preconditioner, matrix format, and data format for every sample;
+- `data/`: stores the four matrix patterns shared by all samples;
+- each numbered directory: one solver route and an independent sample program;
+- `sample.c`: calls the public C API from start to finish;
+- `sample_common.h`: reads A and b, converts matrix formats, and checks the result;
+- `solver.json`: configuration file that selects the iterative method and preconditioner;
+- the local `Makefile`: builds and runs one sample;
+- the local `README.md`: gives short run steps for that sample;
+- the local `data/` link: points to the shared pattern used by that sample.
 
 ## Samples List
 
