@@ -64,51 +64,18 @@ coefficients and returns a solution in two double planes.
 
 ## Requirements
 
-You need a Linux system with:
+Before running a sample, make sure you have:
 
-- a GPU driver compatible with the vendor runtime required by the package;
-- the GPU vendor runtime libraries required by the package;
-- a compatible XianzhiKrylov package;
-- a C compiler;
-- GNU Make;
-- a valid XianzhiKrylov license for the selected GPU.
+- a Linux machine supported by the XianzhiKrylov package;
+- a GPU driver and vendor runtime compatible with that package;
+- a C compiler and GNU Make;
+- a valid license for the installed GPU.
 
-Here, “matching” or “compatible” means all of the following:
+A package is compatible when its documentation lists your CPU architecture,
+GPU model or architecture, and CUDA/DTK/MUSA runtime version. A newer runtime
+is not automatically supported. See the package README for the exact versions.
 
-| Item | What to check |
-| --- | --- |
-| CPU architecture | Matches the package, for example `x86_64`. |
-| Linux C library | Meets the minimum glibc version stated in the package documentation. |
-| GPU vendor and backend | The package backend is CUDA, HIP, MUSA, SYCL, OpenCL, HCR, or another documented backend that supports the installed GPU. |
-| GPU architecture | The GPU model or compiled target is listed as supported by the package, such as a CUDA SM target or Hygon `gfx` target. |
-| Vendor runtime | The installed CUDA, DTK, MUSA, SYCL, OpenCL, or HCR runtime belongs to a version compatible with the package. |
-| Driver | The installed driver supports the required vendor runtime and exposes the selected GPU. |
-
-The package documentation is authoritative for version-specific and
-architecture-specific support. A newer vendor runtime is not automatically
-compatible unless the package documentation says so.
-
-The license is a separate requirement: it must match the machine, GPU, and
-product for which it was issued.
-
-When the extracted XianzhiKrylov package already contains `include/`, `lib/`,
-and `samples/`, no additional build system is required. CMake is not required.
-
-Check the compiler and Make:
-
-```bash
-cc --version
-make --version
-```
-
-On Ubuntu or Debian, missing build tools can be installed with:
-
-```bash
-sudo apt update
-sudo apt install build-essential
-```
-
-Use the equivalent package manager on other Linux distributions.
+CMake is not required.
 
 ## First Run
 
@@ -329,6 +296,44 @@ report complete end-to-end time should account for their own preparation and the
 See [`PATTERN_FORMAT.md`](PATTERN_FORMAT.md) for the binary format.
 
 ## Troubleshooting
+
+### How do I know whether the package is compatible?
+
+Check every item below against the package README:
+
+| Item | What to check |
+| --- | --- |
+| CPU architecture | Matches the package, for example `x86_64`. |
+| Linux C library | Meets the minimum glibc version stated in the package documentation. |
+| GPU vendor and backend | The package backend is CUDA, HIP, MUSA, SYCL, OpenCL, HCR, or another documented backend that supports the installed GPU. |
+| GPU architecture | The GPU model or compiled target is listed as supported by the package, such as a CUDA SM target or Hygon `gfx` target. |
+| Vendor runtime | The installed CUDA, DTK, MUSA, SYCL, OpenCL, or HCR runtime belongs to a version compatible with the package. |
+| Driver | The installed driver supports the required vendor runtime and exposes the selected GPU. |
+
+The package documentation is authoritative for version-specific and
+architecture-specific support. A newer vendor runtime is not automatically
+compatible unless the package documentation says so.
+
+The license is a separate requirement: it must match the machine, GPU, and
+product for which it was issued.
+
+### `cc` or `make` is missing
+
+Check the required build tools:
+
+```bash
+cc --version
+make --version
+```
+
+On Ubuntu or Debian, install the basic build tools with:
+
+```bash
+sudo apt update
+sudo apt install build-essential
+```
+
+Use the equivalent package manager on other Linux distributions.
 
 ### `XianzhiKrylovAPI.h: No such file or directory`
 
