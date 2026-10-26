@@ -76,20 +76,12 @@ libraries/
     └── ...
 ```
 
-Keep `license.key` in the same package directory. Preserve all runtime and
-architecture subdirectories supplied with the package.
+Keep `license.key` in the same package directory.
 
 `common.mk` automatically uses the package containing:
 
 ```text
 libraries/*/include/XianzhiKrylovAPI.h
-```
-
-If several packages are installed, select one explicitly:
-
-```bash
-make -C 17_fgmres_ilu0 LIBRARY_ROOT=/path/to/package
-make -C 17_fgmres_ilu0 run LIBRARY_ROOT=/path/to/package
 ```
 
 ### Build and Run
@@ -98,6 +90,13 @@ make -C 17_fgmres_ilu0 run LIBRARY_ROOT=/path/to/package
 cd xianzhikrylov-samples
 make -C 17_fgmres_ilu0
 make -C 17_fgmres_ilu0 run
+```
+
+If several packages are installed, select one explicitly:
+
+```bash
+make -C 17_fgmres_ilu0 LIBRARY_ROOT=/path/to/package
+make -C 17_fgmres_ilu0 run LIBRARY_ROOT=/path/to/package
 ```
 
 Each sample also supports these commands from its own directory:
@@ -118,9 +117,6 @@ make clean
 ## Samples
 
 ### Samples List
-
-`Precision` is the data type used for A, b, and x in the sample and selected
-method.
 
 | Sample name | Method | Matrix format | Precision |
 | --- | --- | --- | --- |
