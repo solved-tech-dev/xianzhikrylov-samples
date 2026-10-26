@@ -2,8 +2,8 @@
 
 32 independent C11 samples for the XianzhiKrylov C API. Each directory contains
 `sample.c`, its local `sample_common.h`, `solver.json`, a Makefile, a short
-README, and a package-internal data link. The samples do not include the
-XianzhiKrylov libraries or a license file.
+README, and a package-internal data link. XianzhiKrylov libraries and license
+files are available from [https://store.solved-tech.com/](https://store.solved-tech.com/).
 
 | Sample | Route | Format | Default data |
 | --- | --- | --- | --- |
