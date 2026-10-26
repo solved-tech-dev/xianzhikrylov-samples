@@ -4,23 +4,24 @@
 
 ## 编译和运行
 
-在兼容的 Linux/CUDA 环境中，从本目录执行：
+在兼容的 Linux/<GPU_VENDOR> 环境中，从本目录执行：
 
 ```bash
 export XIANZHIKRYLOV_LICENSE_PATHS="/absolute/path/to/license.key"
-make XK_ROOT="/absolute/path/to/XianzhiKrylov" CUDA_ROOT="/path/to/cuda"
-make run XK_ROOT="/absolute/path/to/XianzhiKrylov" CUDA_ROOT="/path/to/cuda"
+make XK_ROOT="/absolute/path/to/XianzhiKrylov" XK_BACKEND=1
+make run XK_ROOT="/absolute/path/to/XianzhiKrylov" XK_BACKEND=1
 ```
 
 也可以直接运行：
 
 ```bash
-export LD_LIBRARY_PATH="/absolute/path/to/XianzhiKrylov/lib:/path/to/cuda/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="/absolute/path/to/XianzhiKrylov/lib:/path/to/gpu/runtime/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 ./sample data/coupled4_500k.csrpat solver.json
 ```
 
-`XK_ROOT` 应指向包含 `include/` 和 `lib/` 的已解压 XianzhiKrylov 目录。`make run`
-会自动设置库搜索路径。使用其他输入时，通过命令行传入矩阵文件和 `solver.json`。
+`XK_ROOT` 应指向包含 `include/` 和 `lib/` 的已解压 XianzhiKrylov 目录。`XK_BACKEND`
+应设置为对应 GPU 软件包的公开 backend 值。`make run` 会自动设置 XianzhiKrylov 库路径；
+如厂商运行时不在系统默认路径，同时设置 `GPU_RUNTIME_LIB_DIR`。使用其他输入时，通过命令行传入矩阵文件和 `solver.json`。
 
 ## 输入和数据
 

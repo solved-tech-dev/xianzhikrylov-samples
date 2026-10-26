@@ -1,6 +1,6 @@
 # XianzhiKrylov Samples
 
-32 independent C11 samples for the XianzhiKrylov C API. Each directory contains
+32 independent C samples for the XianzhiKrylov C API. Each directory contains
 `sample.c`, its local `sample_common.h`, `solver.json`, a Makefile, a short
 README, and a package-internal data link. XianzhiKrylov libraries and license
 files are available from [https://store.solved-tech.com/](https://store.solved-tech.com/).
@@ -42,12 +42,13 @@ files are available from [https://store.solved-tech.com/](https://store.solved-t
 
 ## Prerequisites
 
-- An extracted XianzhiKrylov 26.43 package matching the target Linux system
-  and GPU.
-- A C11 compiler, GNU Make, GNU-compatible linker, and the matching CUDA
-  development toolkit.
-- A valid XianzhiKrylov license for the selected GPU. Runtime authorization is
-  local and does not require internet access.
+- An extracted XianzhiKrylov package matching the target Linux system and
+  `<GPU_VENDOR>`.
+- A complete C11 compiler toolchain, including the compiler and linker.
+- GNU Make.
+- The matching GPU vendor development toolkit, such as CUDA, DTK, MUSA, or
+  another supported toolkit.
+- A valid XianzhiKrylov license for the selected GPU.
 
 ## Quick start
 
@@ -57,19 +58,21 @@ their parent explicitly:
 ```bash
 export XIANZHIKRYLOV_LICENSE_PATHS="/absolute/path/to/license.key"
 cd samples/17_fgmres_ilu0
-make XK_ROOT="/absolute/path/to/XianzhiKrylov" CUDA_ROOT="/path/to/cuda"
-make run XK_ROOT="/absolute/path/to/XianzhiKrylov" CUDA_ROOT="/path/to/cuda"
+make XK_ROOT="/absolute/path/to/XianzhiKrylov" XK_BACKEND=1
+make run XK_ROOT="/absolute/path/to/XianzhiKrylov" XK_BACKEND=1
 ```
 
 Build all samples:
 
 ```bash
-make XK_ROOT="/absolute/path/to/XianzhiKrylov" CUDA_ROOT="/path/to/cuda"
+make XK_ROOT="/absolute/path/to/XianzhiKrylov" XK_BACKEND=1
 ```
 
 Each Makefile supports `CC`, `CFLAGS`, `CPPFLAGS`, `LDFLAGS`, `LDLIBS`,
-`XK_ROOT`, `CUDA_ROOT`, `CUDA_LIB_DIR`, and `RUN_ARGS`. Use `make clean` before
-changing the package, toolkit, or compiler flags.
+`XK_ROOT`, `XK_BACKEND`, `GPU_RUNTIME_LIB_DIR`, and `RUN_ARGS`. Set
+`GPU_RUNTIME_LIB_DIR` when the vendor runtime is not in the system loader path.
+Use `make clean` before changing the package, backend, toolkit, or compiler
+flags. CMake is not required.
 
 ## Data and output
 
