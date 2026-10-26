@@ -34,20 +34,22 @@ typedef struct {
     uint64_t seed;
     int32_t *row, *col;
     double *a, *b;
-    xianzhikrylov_complex *za, *zb;
+    xianzhikrylov_complex_t *za, *zb;
 } xk_matrix;
 
 typedef struct {
-    xianzhikrylov_system_data system;
+    xianzhikrylov_matrix_data_t matrix;
+    xianzhikrylov_matrix_t matrix_object;
+    xianzhikrylov_vector_t rhs_object;
     int32_t *row, *col, *lower_addr, *upper_addr;
     uint64_t *brow, *bcol, *bdiag;
     double *values, *offdiag, *lower_values, *upper_values;
 } xk_binding;
 
 typedef struct {
-    xianzhikrylov_solution descriptor;
+    xianzhikrylov_vector_t vector_object;
     double *x;
-    xianzhikrylov_complex *z;
+    xianzhikrylov_complex_t *z;
 } xk_solution;
 
 static inline void xk_matrix_free(xk_matrix *a)
@@ -65,6 +67,10 @@ static inline void xk_matrix_free(xk_matrix *a)
 static inline void xk_binding_free(xk_binding *b)
 {
     if (!b) return;
+    if (b->rhs_object)
+        (void)xianzhikrylov_vector_destroy(b->rhs_object);
+    if (b->matrix_object)
+        (void)xianzhikrylov_matrix_destroy(b->matrix_object);
     free(b->row);
     free(b->col);
     free(b->lower_addr);
@@ -82,6 +88,8 @@ static inline void xk_binding_free(xk_binding *b)
 static inline void xk_solution_free(xk_solution *x)
 {
     if (!x) return;
+    if (x->vector_object)
+        (void)xianzhikrylov_vector_destroy(x->vector_object);
     free(x->x);
     free(x->z);
     memset(x, 0, sizeof(*x));
@@ -207,15 +215,15 @@ static inline int xk_generate_complex_values(xk_matrix *a)
     uint32_t rhs;
     static const double xr[3] = {1.0, 1.0, 1.0};
     static const double xi[3] = {0.0, 0.25, -0.25};
-    if (!xk_size_ok(a->h.entries, sizeof(xianzhikrylov_complex)) ||
+    if (!xk_size_ok(a->h.entries, sizeof(xianzhikrylov_complex_t)) ||
         !xk_size_ok(a->h.rows * a->h.rhs_count,
-                    sizeof(xianzhikrylov_complex)))
+                    sizeof(xianzhikrylov_complex_t)))
         return 0;
-    a->za = (xianzhikrylov_complex *)calloc(
-        (size_t)a->h.entries, sizeof(xianzhikrylov_complex));
-    a->zb = (xianzhikrylov_complex *)calloc(
+    a->za = (xianzhikrylov_complex_t *)calloc(
+        (size_t)a->h.entries, sizeof(xianzhikrylov_complex_t));
+    a->zb = (xianzhikrylov_complex_t *)calloc(
         (size_t)(a->h.rows * a->h.rhs_count),
-        sizeof(xianzhikrylov_complex));
+        sizeof(xianzhikrylov_complex_t));
     if (!a->za || !a->zb) return 0;
     for (i = 0; i < a->h.rows; ++i) {
         int32_t diag = -1;
@@ -347,16 +355,16 @@ static inline int xk_load_values(xk_matrix *a, FILE *f, const char *path)
                            sizeof(double)))
             return 0;
     } else {
-        a->za = (xianzhikrylov_complex *)malloc(
-            (size_t)a->h.entries * sizeof(xianzhikrylov_complex));
-        a->zb = (xianzhikrylov_complex *)malloc(
+        a->za = (xianzhikrylov_complex_t *)malloc(
+            (size_t)a->h.entries * sizeof(xianzhikrylov_complex_t));
+        a->zb = (xianzhikrylov_complex_t *)malloc(
             (size_t)(a->h.rows * a->h.rhs_count) *
-            sizeof(xianzhikrylov_complex));
+            sizeof(xianzhikrylov_complex_t));
         if (!a->za || !a->zb ||
             !xk_read_array(f, a->za, a->h.entries,
-                           sizeof(xianzhikrylov_complex)) ||
+                           sizeof(xianzhikrylov_complex_t)) ||
             !xk_read_array(f, a->zb, a->h.rows * a->h.rhs_count,
-                           sizeof(xianzhikrylov_complex)))
+                           sizeof(xianzhikrylov_complex_t)))
             return 0;
     }
     if (!xk_validate_csr(a)) return 0;
@@ -396,46 +404,29 @@ static inline int xk_matrix_load(xk_matrix *a, const char *path)
     return ok;
 }
 
-static inline xianzhikrylov_input_buffer xk_input(const void *data, size_t bytes)
+static inline xianzhikrylov_input_buffer_t xk_input(const void *data, size_t bytes)
 {
-    xianzhikrylov_input_buffer result;
+    xianzhikrylov_input_buffer_t result;
     result.data = data;
     result.bytes = (uint64_t)bytes;
     return result;
 }
 
-static inline void xk_init_matrix_descriptor(xianzhikrylov_matrix *m,
+static inline void xk_init_matrix_descriptor(xianzhikrylov_matrix_data_t *m,
                                        const xk_matrix *a)
 {
     memset(m, 0, sizeof(*m));
-    m->abi_version = XIANZHIKRYLOV_DATA_ABI;
+    m->abi_version = XIANZHIKRYLOV_ABI_VERSION;
     m->struct_size = sizeof(*m);
-    m->scalar_type = a->h.scalar;
+    m->value_type = a->h.scalar;
     m->index_type = XIANZHIKRYLOV_INDEX_I32;
     m->block_size = 1;
     m->block_layout = XIANZHIKRYLOV_BLOCK_ROW_MAJOR;
     m->memory_space = XIANZHIKRYLOV_HOST;
     m->device_id = -1;
-    m->rows = a->h.rows;
-    m->columns = a->h.rows;
-    m->entries = a->h.entries;
-}
-
-static inline void xk_init_vector_descriptor(xianzhikrylov_vector *v, uint32_t scalar,
-                                      uint64_t rows, uint64_t rhs,
-                                      xianzhikrylov_input_buffer data)
-{
-    memset(v, 0, sizeof(*v));
-    v->abi_version = XIANZHIKRYLOV_DATA_ABI;
-    v->struct_size = sizeof(*v);
-    v->scalar_type = scalar;
-    v->layout = XIANZHIKRYLOV_RHS_MAJOR;
-    v->memory_space = XIANZHIKRYLOV_HOST;
-    v->device_id = -1;
-    v->rows = rows;
-    v->rhs_count = rhs;
-    v->leading_dimension = rows;
-    v->data = data;
+    m->rows = (int64_t)a->h.rows;
+    m->columns = (int64_t)a->h.rows;
+    m->entries = (int64_t)a->h.entries;
 }
 
 typedef struct {
@@ -535,20 +526,20 @@ static inline int xk_convert_bsr4(xk_binding *b, const xk_matrix *a)
         b->brow[br + 1] = bcol_count;
     }
     free(tmp);
-    xk_init_matrix_descriptor(&b->system.matrix, a);
-    b->system.matrix.format = XIANZHIKRYLOV_BSR;
-    b->system.matrix.index_type = XIANZHIKRYLOV_INDEX_I64;
-    b->system.matrix.block_size = 4;
-    b->system.matrix.rows = block_rows;
-    b->system.matrix.columns = block_rows;
-    b->system.matrix.entries = bcol_count;
-    b->system.matrix.row_offsets = xk_input(
+    xk_init_matrix_descriptor(&b->matrix, a);
+    b->matrix.format = XIANZHIKRYLOV_BSR;
+    b->matrix.index_type = XIANZHIKRYLOV_INDEX_I64;
+    b->matrix.block_size = 4;
+    b->matrix.rows = block_rows;
+    b->matrix.columns = block_rows;
+    b->matrix.entries = bcol_count;
+    b->matrix.row_offsets = xk_input(
         b->brow, (size_t)(block_rows + 1) * sizeof(uint64_t));
-    b->system.matrix.column_indices = xk_input(
+    b->matrix.column_indices = xk_input(
         b->bcol, bcol_count * sizeof(uint64_t));
-    b->system.matrix.diagonal_positions = xk_input(
+    b->matrix.diagonal_positions = xk_input(
         b->bdiag, (size_t)block_rows * sizeof(uint64_t));
-    b->system.matrix.values = xk_input(
+    b->matrix.values = xk_input(
         b->values, bcol_count * 16 * sizeof(double));
     return 1;
 }
@@ -578,16 +569,16 @@ static inline int xk_convert_msr(xk_binding *b, const xk_matrix *a)
         b->values[i] = a->a[diag];
         b->row[i + 1] = (int32_t)off_count;
     }
-    xk_init_matrix_descriptor(&b->system.matrix, a);
-    b->system.matrix.format = XIANZHIKRYLOV_MSR;
-    b->system.matrix.entries = off_count;
-    b->system.matrix.row_offsets = xk_input(
+    xk_init_matrix_descriptor(&b->matrix, a);
+    b->matrix.format = XIANZHIKRYLOV_MSR;
+    b->matrix.entries = off_count;
+    b->matrix.row_offsets = xk_input(
         b->row, (size_t)(a->h.rows + 1) * sizeof(int32_t));
-    b->system.matrix.column_indices = xk_input(
+    b->matrix.column_indices = xk_input(
         b->col, off_count * sizeof(int32_t));
-    b->system.matrix.values = xk_input(
+    b->matrix.values = xk_input(
         b->values, (size_t)a->h.rows * sizeof(double));
-    b->system.matrix.offdiagonal_values = xk_input(
+    b->matrix.offdiagonal_values = xk_input(
         b->offdiag, off_count * sizeof(double));
     return 1;
 }
@@ -625,18 +616,18 @@ static inline int xk_convert_ldu(xk_binding *b, const xk_matrix *a)
         if (diag < 0) return 0;
         b->values[i] = a->a[diag];
     }
-    xk_init_matrix_descriptor(&b->system.matrix, a);
-    b->system.matrix.format = XIANZHIKRYLOV_LDU;
-    b->system.matrix.entries = face_count;
-    b->system.matrix.values = xk_input(
+    xk_init_matrix_descriptor(&b->matrix, a);
+    b->matrix.format = XIANZHIKRYLOV_LDU;
+    b->matrix.entries = face_count;
+    b->matrix.values = xk_input(
         b->values, (size_t)a->h.rows * sizeof(double));
-    b->system.matrix.lower_address = xk_input(
+    b->matrix.lower_address = xk_input(
         b->lower_addr, face_count * sizeof(int32_t));
-    b->system.matrix.upper_address = xk_input(
+    b->matrix.upper_address = xk_input(
         b->upper_addr, face_count * sizeof(int32_t));
-    b->system.matrix.lower_values = xk_input(
+    b->matrix.lower_values = xk_input(
         b->lower_values, face_count * sizeof(double));
-    b->system.matrix.upper_values = xk_input(
+    b->matrix.upper_values = xk_input(
         b->upper_values, face_count * sizeof(double));
     return 1;
 }
@@ -644,20 +635,20 @@ static inline int xk_convert_ldu(xk_binding *b, const xk_matrix *a)
 static inline int xk_binding_make(xk_binding *b, const xk_matrix *a,
                            uint32_t format, uint32_t block)
 {
-    xianzhikrylov_input_buffer rhs_data;
+    xianzhikrylov_input_buffer_t rhs_data;
     if (!b || !a) return 0;
     memset(b, 0, sizeof(*b));
     if (format == XIANZHIKRYLOV_CSR) {
-        xk_init_matrix_descriptor(&b->system.matrix, a);
-        b->system.matrix.format = XIANZHIKRYLOV_CSR;
-        b->system.matrix.row_offsets = xk_input(
+        xk_init_matrix_descriptor(&b->matrix, a);
+        b->matrix.format = XIANZHIKRYLOV_CSR;
+        b->matrix.row_offsets = xk_input(
             a->row, (size_t)(a->h.rows + 1) * sizeof(int32_t));
-        b->system.matrix.column_indices = xk_input(
+        b->matrix.column_indices = xk_input(
             a->col, (size_t)a->h.entries * sizeof(int32_t));
-        b->system.matrix.values = a->h.scalar == 1 ?
+        b->matrix.values = a->h.scalar == 1 ?
             xk_input(a->a, (size_t)a->h.entries * sizeof(double)) :
             xk_input(a->za, (size_t)a->h.entries *
-                             sizeof(xianzhikrylov_complex));
+                             sizeof(xianzhikrylov_complex_t));
     } else if (format == XIANZHIKRYLOV_BSR && block == 4) {
         if (!xk_convert_bsr4(b, a)) return 0;
     } else if (format == XIANZHIKRYLOV_MSR && block == 1) {
@@ -672,11 +663,20 @@ static inline int xk_binding_make(xk_binding *b, const xk_matrix *a,
         xk_input(a->b, (size_t)(a->h.rows * a->h.rhs_count) *
                        sizeof(double)) :
         xk_input(a->zb, (size_t)(a->h.rows * a->h.rhs_count) *
-                        sizeof(xianzhikrylov_complex));
-    b->system.abi_version = XIANZHIKRYLOV_DATA_ABI;
-    b->system.struct_size = sizeof(b->system);
-    xk_init_vector_descriptor(&b->system.rhs, a->h.scalar,
-                              a->h.rows, a->h.rhs_count, rhs_data);
+                        sizeof(xianzhikrylov_complex_t));
+    if (xianzhikrylov_matrix_create(&b->matrix_object, &b->matrix) !=
+        XIANZHIKRYLOV_SUCCESS)
+        return 0;
+    if (xianzhikrylov_multiple_vector_create(
+            &b->rhs_object, (int64_t)a->h.rows,
+            (int64_t)a->h.rhs_count, (int64_t)a->h.rows,
+            XIANZHIKRYLOV_RHS_MAJOR,
+            (void *)(uintptr_t)rhs_data.data, NULL, a->h.scalar,
+            XIANZHIKRYLOV_HOST) != XIANZHIKRYLOV_SUCCESS) {
+        (void)xianzhikrylov_matrix_destroy(b->matrix_object);
+        b->matrix_object = NULL;
+        return 0;
+    }
     return 1;
 }
 
@@ -687,31 +687,29 @@ static inline int xk_solution_init(xk_solution *x, const xk_matrix *a)
     memset(x, 0, sizeof(*x));
     if (!xk_size_ok(a->h.rows * a->h.rhs_count,
                     a->h.scalar == 1 ? sizeof(double) :
-                                       sizeof(xianzhikrylov_complex)))
+                                       sizeof(xianzhikrylov_complex_t)))
         return 0;
     count = a->h.rows * a->h.rhs_count;
     if (a->h.scalar == 1) {
         x->x = (double *)calloc((size_t)count, sizeof(double));
         if (!x->x) return 0;
-        x->descriptor.data.data = x->x;
-        x->descriptor.data.bytes = count * sizeof(double);
     } else {
-        x->z = (xianzhikrylov_complex *)calloc(
-            (size_t)count, sizeof(xianzhikrylov_complex));
+        x->z = (xianzhikrylov_complex_t *)calloc(
+            (size_t)count, sizeof(xianzhikrylov_complex_t));
         if (!x->z) return 0;
-        x->descriptor.data.data = x->z;
-        x->descriptor.data.bytes =
-            count * sizeof(xianzhikrylov_complex);
     }
-    x->descriptor.abi_version = XIANZHIKRYLOV_DATA_ABI;
-    x->descriptor.struct_size = sizeof(x->descriptor);
-    x->descriptor.scalar_type = a->h.scalar;
-    x->descriptor.layout = XIANZHIKRYLOV_RHS_MAJOR;
-    x->descriptor.memory_space = XIANZHIKRYLOV_HOST;
-    x->descriptor.device_id = -1;
-    x->descriptor.rows = a->h.rows;
-    x->descriptor.rhs_count = a->h.rhs_count;
-    x->descriptor.leading_dimension = a->h.rows;
+    if (xianzhikrylov_multiple_vector_create(
+            &x->vector_object, (int64_t)a->h.rows,
+            (int64_t)a->h.rhs_count, (int64_t)a->h.rows,
+            XIANZHIKRYLOV_RHS_MAJOR,
+            a->h.scalar == 1 ? (void *)x->x : (void *)x->z,
+            NULL, a->h.scalar, XIANZHIKRYLOV_HOST) !=
+        XIANZHIKRYLOV_SUCCESS) {
+        free(x->x);
+        free(x->z);
+        memset(x, 0, sizeof(*x));
+        return 0;
+    }
     return 1;
 }
 

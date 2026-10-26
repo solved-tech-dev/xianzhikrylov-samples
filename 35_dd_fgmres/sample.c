@@ -56,13 +56,15 @@ int main(int argc, char **argv)
         argc > 1 ? argv[1] : "../matrices/diffusion_1m.csrpat";
     const char *json_path = argc > 2 ? argv[2] : "config.json";
     xk_matrix matrix = {0};
-    xianzhikrylov_system_data system = {0};
-    xianzhikrylov_solution output = {0};
-    xianzhikrylov_handle *handle = NULL;
+    xianzhikrylov_matrix_data_t matrix_data = {0};
+    xianzhikrylov_matrix_t matrix_object = NULL;
+    xianzhikrylov_vector_t rhs_object = NULL;
+    xianzhikrylov_vector_t solution_object = NULL;
+    xianzhikrylov_handle_t handle = NULL;
     double *values_high = NULL, *values_low = NULL;
     double *rhs_high = NULL, *rhs_low = NULL;
     double *solution_high = NULL, *solution_low = NULL;
-    xianzhikrylov_status status;
+    xianzhikrylov_status_t status;
     int rc = 2, destroyed = 0;
 
     if (!xk_matrix_load(&matrix, matrix_path))
@@ -117,94 +119,80 @@ int main(int argc, char **argv)
         }
     }
 
-    system.abi_version = XIANZHIKRYLOV_DATA_ABI;
-    system.struct_size = sizeof(system);
-    system.matrix.abi_version = XIANZHIKRYLOV_DATA_ABI;
-    system.matrix.struct_size = sizeof(system.matrix);
-    system.matrix.format = XIANZHIKRYLOV_CSR;
-    system.matrix.scalar_type = XIANZHIKRYLOV_DD;
-    system.matrix.index_type = XIANZHIKRYLOV_INDEX_I32;
-    system.matrix.block_size = 1;
-    system.matrix.block_layout = XIANZHIKRYLOV_BLOCK_ROW_MAJOR;
-    system.matrix.memory_space = XIANZHIKRYLOV_HOST;
-    system.matrix.device_id = -1;
-    system.matrix.rows = matrix.h.rows;
-    system.matrix.columns = matrix.h.rows;
-    system.matrix.entries = matrix.h.entries;
-    system.matrix.row_offsets =
+    matrix_data.abi_version = XIANZHIKRYLOV_ABI_VERSION;
+    matrix_data.struct_size = sizeof(matrix_data);
+    matrix_data.format = XIANZHIKRYLOV_CSR;
+    matrix_data.value_type = XIANZHIKRYLOV_DD;
+    matrix_data.index_type = XIANZHIKRYLOV_INDEX_I32;
+    matrix_data.block_size = 1;
+    matrix_data.block_layout = XIANZHIKRYLOV_BLOCK_ROW_MAJOR;
+    matrix_data.memory_space = XIANZHIKRYLOV_HOST;
+    matrix_data.device_id = -1;
+    matrix_data.rows = (int64_t)matrix.h.rows;
+    matrix_data.columns = (int64_t)matrix.h.rows;
+    matrix_data.entries = (int64_t)matrix.h.entries;
+    matrix_data.row_offsets =
         xk_input(matrix.row, (size_t)(matrix.h.rows + 1) * sizeof(int32_t));
-    system.matrix.column_indices =
+    matrix_data.column_indices =
         xk_input(matrix.col, (size_t)matrix.h.entries * sizeof(int32_t));
-    system.matrix.values =
+    matrix_data.values =
         xk_input(values_high, (size_t)matrix.h.entries * sizeof(double));
-    system.matrix_planes.values_low =
+    matrix_data.values_low =
         xk_input(values_low, (size_t)matrix.h.entries * sizeof(double));
-    system.rhs.abi_version = XIANZHIKRYLOV_DATA_ABI;
-    system.rhs.struct_size = sizeof(system.rhs);
-    system.rhs.scalar_type = XIANZHIKRYLOV_DD;
-    system.rhs.layout = XIANZHIKRYLOV_RHS_MAJOR;
-    system.rhs.memory_space = XIANZHIKRYLOV_HOST;
-    system.rhs.device_id = -1;
-    system.rhs.rows = matrix.h.rows;
-    system.rhs.rhs_count = 1;
-    system.rhs.leading_dimension = matrix.h.rows;
-    system.rhs.data =
-        xk_input(rhs_high, (size_t)matrix.h.rows * sizeof(double));
-    system.rhs.low =
-        xk_input(rhs_low, (size_t)matrix.h.rows * sizeof(double));
 
-    status = xianzhikrylov_init(0, json_path, &handle);
+    status = xianzhikrylov_create(0, &handle);
     if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "init status=%d\n", (int)status);
+        fprintf(stderr, "create status=%d\n", (int)status);
         rc = 1;
         goto done;
     }
-    status = xianzhikrylov_set_system(
-        handle, XIANZHIKRYLOV_STRUCTURE | XIANZHIKRYLOV_RHS, &system);
+    status = xianzhikrylov_config_set(
+        handle, XIANZHIKRYLOV_CONFIG_FILE, json_path);
     if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "set_system status=%d\n", (int)status);
+        fprintf(stderr, "config_set status=%d\n", (int)status);
         rc = 1;
         goto done;
     }
-    status = xianzhikrylov_solve_prepare(
-        handle, XIANZHIKRYLOV_AUTO_STAGE, NULL);
+    status = xianzhikrylov_matrix_create(&matrix_object, &matrix_data);
     if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "solve_prepare status=%d\n", (int)status);
+        fprintf(stderr, "matrix_create status=%d\n", (int)status);
         rc = 1;
         goto done;
     }
-    status = xianzhikrylov_solve(handle);
+    status = xianzhikrylov_multiple_vector_create(
+        &rhs_object, (int64_t)matrix.h.rows, 1,
+        (int64_t)matrix.h.rows, XIANZHIKRYLOV_RHS_MAJOR,
+        rhs_high, rhs_low, XIANZHIKRYLOV_DD, XIANZHIKRYLOV_HOST);
+    if (status != XIANZHIKRYLOV_SUCCESS) {
+        fprintf(stderr, "rhs vector_create status=%d\n", (int)status);
+        rc = 1;
+        goto done;
+    }
+    status = xianzhikrylov_multiple_vector_create(
+        &solution_object, (int64_t)matrix.h.rows, 1,
+        (int64_t)matrix.h.rows, XIANZHIKRYLOV_RHS_MAJOR,
+        solution_high, solution_low, XIANZHIKRYLOV_DD,
+        XIANZHIKRYLOV_HOST);
+    if (status != XIANZHIKRYLOV_SUCCESS) {
+        fprintf(stderr, "solution vector_create status=%d\n", (int)status);
+        rc = 1;
+        goto done;
+    }
+    status = xianzhikrylov_execute(
+        handle, XIANZHIKRYLOV_PHASE_ALL, matrix_object,
+        solution_object, rhs_object);
     if (status != XIANZHIKRYLOV_CONVERGED) {
-        fprintf(stderr, "solve status=%d (not converged)\n", (int)status);
-        rc = 1;
-        goto done;
-    }
-
-    output.abi_version = XIANZHIKRYLOV_DATA_ABI;
-    output.struct_size = sizeof(output);
-    output.scalar_type = XIANZHIKRYLOV_DD;
-    output.layout = XIANZHIKRYLOV_RHS_MAJOR;
-    output.memory_space = XIANZHIKRYLOV_HOST;
-    output.device_id = -1;
-    output.rows = matrix.h.rows;
-    output.rhs_count = 1;
-    output.leading_dimension = matrix.h.rows;
-    output.data.data = solution_high;
-    output.data.bytes = (size_t)matrix.h.rows * sizeof(double);
-    output.low.data = solution_low;
-    output.low.bytes = (size_t)matrix.h.rows * sizeof(double);
-    status = xianzhikrylov_solution_copy(handle, &output);
-    if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "solution_copy status=%d\n", (int)status);
+        fprintf(stderr, "execute status=%d (not converged)\n", (int)status);
         rc = 1;
         goto done;
     }
 
     {
-        const xianzhikrylov_status print_status =
+        const xianzhikrylov_status_t print_status =
             xianzhikrylov_print_info(handle);
-        const xianzhikrylov_status destroy_status =
-            xianzhikrylov_destroy(&handle);
+        const xianzhikrylov_status_t destroy_status =
+            xianzhikrylov_destroy(handle);
+        handle = NULL;
         const int residual_ok = xk_verify_dd(
             &matrix, values_high, values_low, rhs_high, rhs_low,
             solution_high, solution_low, 1e-10L);
@@ -216,7 +204,13 @@ int main(int argc, char **argv)
 
 done:
     if (handle && !destroyed)
-        (void)xianzhikrylov_destroy(&handle);
+        (void)xianzhikrylov_destroy(handle);
+    if (solution_object)
+        (void)xianzhikrylov_vector_destroy(solution_object);
+    if (rhs_object)
+        (void)xianzhikrylov_vector_destroy(rhs_object);
+    if (matrix_object)
+        (void)xianzhikrylov_matrix_destroy(matrix_object);
     free(solution_low);
     free(solution_high);
     free(rhs_low);

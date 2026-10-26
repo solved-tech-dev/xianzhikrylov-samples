@@ -9,8 +9,8 @@ int main(int argc, char **argv)
     xk_matrix matrix = {0};
     xk_binding binding = {0};
     xk_solution solution = {0};
-    xianzhikrylov_handle *handle = NULL;
-    xianzhikrylov_status status;
+    xianzhikrylov_handle_t handle = NULL;
+    xianzhikrylov_status_t status;
     int rc = 2, destroyed = 0;
 
     if (!xk_matrix_load(&matrix, matrix_path))
@@ -24,45 +24,34 @@ int main(int argc, char **argv)
         goto done;
     }
 
-    status = xianzhikrylov_init(0, json_path, &handle);
+    status = xianzhikrylov_create(0, &handle);
     if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "init status=%d\n", (int)status);
+        fprintf(stderr, "create status=%d\n", (int)status);
         rc = 1;
         goto done;
     }
-    /* HOST input is copied into library-owned GPU storage synchronously. */
-    status = xianzhikrylov_set_system(
-        handle, XIANZHIKRYLOV_STRUCTURE | XIANZHIKRYLOV_RHS,
-        &binding.system);
+    status = xianzhikrylov_config_set(
+        handle, XIANZHIKRYLOV_CONFIG_FILE, json_path);
     if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "set_system status=%d\n", (int)status);
+        fprintf(stderr, "config_set status=%d\n", (int)status);
         rc = 1;
         goto done;
     }
-    status = xianzhikrylov_solve_prepare(
-        handle, XIANZHIKRYLOV_AUTO_STAGE, NULL);
-    if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "solve_prepare status=%d\n", (int)status);
-        rc = 1;
-        goto done;
-    }
-    status = xianzhikrylov_solve(handle);
+    /* HOST A, b, and x are prepared by the library during execute(ALL). */
+    status = xianzhikrylov_execute(
+        handle, XIANZHIKRYLOV_PHASE_ALL, binding.matrix_object,
+        solution.vector_object, binding.rhs_object);
     if (status != XIANZHIKRYLOV_CONVERGED) {
-        fprintf(stderr, "solve status=%d (not converged)\n", (int)status);
-        rc = 1;
-        goto done;
-    }
-    status = xianzhikrylov_solution_copy(handle, &solution.descriptor);
-    if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "solution_copy status=%d\n", (int)status);
+        fprintf(stderr, "execute status=%d (not converged)\n", (int)status);
         rc = 1;
         goto done;
     }
     {
-        const xianzhikrylov_status print_status =
+        const xianzhikrylov_status_t print_status =
             xianzhikrylov_print_info(handle);
-        const xianzhikrylov_status destroy_status =
-            xianzhikrylov_destroy(&handle);
+        const xianzhikrylov_status_t destroy_status =
+            xianzhikrylov_destroy(handle);
+        handle = NULL;
         const int residual_ok = xk_verify(&matrix, &solution, 1e-8L);
         destroyed = 1;
         rc = print_status == XIANZHIKRYLOV_SUCCESS &&
@@ -72,7 +61,7 @@ int main(int argc, char **argv)
 
 done:
     if (handle && !destroyed)
-        (void)xianzhikrylov_destroy(&handle);
+        (void)xianzhikrylov_destroy(handle);
     xk_solution_free(&solution);
     xk_binding_free(&binding);
     xk_matrix_free(&matrix);

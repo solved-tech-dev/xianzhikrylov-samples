@@ -1,133 +1,285 @@
-# XianzhiKrylov C API Guide
+# XianzhiKrylov Product Guide
 
-## Scope
+## Overview
 
-XianzhiKrylov solves sparse linear systems `Ax=b` with GPU Krylov methods and
-preconditioners. Packages from different GPU vendors use the same C API. Place
-an extracted package under `libraries/` or set `LIBRARY_ROOT` to its root.
-The runtime license must be stored as `license.key` in that same package root.
+XianzhiKrylov solves sparse linear systems
 
-The package README defines the supported CPU, glibc, GPU architectures, vendor
-toolkit, and available method set. A newer toolkit is not automatically
-supported.
-
-## Data Model
-
-Initialize every public structure with:
-
-```c
-memset(&value, 0, sizeof(value));
-value.abi_version = XIANZHIKRYLOV_DATA_ABI;
-value.struct_size = sizeof(value);
+```text
+A x = b
 ```
 
-### Matrix
+with GPU Krylov methods and preconditioners. Packages for supported GPU
+vendors expose the same public C interface. The installed package determines
+the vendor backend, GPU architectures, and available solver combinations.
 
-`xianzhikrylov_matrix` describes A:
+The application prepares a matrix object and dense vector objects, submits
+them to a compute handle, executes one or more phases, and reads the solution
+from the output vector. Algorithm settings are selected by a JSON file rather
+than by command-line flags or per-call option structures.
 
-- `rows` and `columns` are scalar dimensions for CSR and LDU, block
-  dimensions for BSR and MSR.
-- `entries` counts CSR nonzeros, BSR/MSR nonzero blocks, or LDU faces.
-- `row_offsets` uses `int32_t` for CSR/MSR/LDU and `uint64_t` for BSR.
-- `column_indices` follows the same index rule.
-- Columns in each row must be sorted, unique, zero based, and in range.
-- CSR, BSR, and LDU require an explicit diagonal. MSR stores its diagonal
-  separately.
-- `values` holds row-major coefficients. MSR also uses
-  `offdiagonal_values`; LDU uses `lower_values` and `upper_values`.
+This document describes the product API. The top-level
+[README](../README.md) describes the sample repository and how to run its
+examples.
 
-### Scalar Types
+## Package Layout
 
-| Constant | C storage |
+An extracted package has this public layout:
+
+```text
+XianzhiKrylov/
+├── README.md
+├── include/
+│   ├── XianzhiKrylovAPI.h
+│   └── XianzhiKrylovData.h
+├── lib/
+│   ├── libXianzhiKrylov.so
+│   └── ...
+├── samples/
+├── license.key
+└── THIRD_PARTY_NOTICES.txt
+```
+
+The exact runtime libraries and GPU architecture subdirectories are package
+specific. Keep the extracted package structure intact. Place the license file
+from the store at the package root as `license.key`.
+
+Applications include:
+
+```c
+#include "XianzhiKrylovAPI.h"
+```
+
+and link with `-lXianzhiKrylov`.
+
+## Numerical Data
+
+### Matrix Formats
+
+`xianzhikrylov_matrix_data_t` supports:
+
+| Format | Main storage |
+| --- | --- |
+| CSR | `row_offsets`, `column_indices`, `values` |
+| BSR | block row offsets, block column indices, block values, block size and block layout |
+| MSR | diagonal-separated offsets, column indices, diagonal values and off-diagonal values |
+| LDU | diagonal values plus lower/upper addresses and face values |
+
+Matrix patterns are zero based, sorted, duplicate free, and have no hidden
+format conversion. The selected method/preconditioner combination must support
+the requested format.
+
+### Number Types
+
+| Public constant | Storage |
 | --- | --- |
 | `XIANZHIKRYLOV_FP64` | `double` |
-| `XIANZHIKRYLOV_COMPLEX_FP64` | `xianzhikrylov_complex` |
+| `XIANZHIKRYLOV_COMPLEX_FP64` | `xianzhikrylov_complex_t` |
 | `XIANZHIKRYLOV_FP32` | `float` |
-| `XIANZHIKRYLOV_COMPLEX_FP32` | `xianzhikrylov_complex_fp32` |
-| `XIANZHIKRYLOV_DD` | Two FP64 planes, high in `data`/`values` and low in `low`/`matrix_planes` |
+| `XIANZHIKRYLOV_COMPLEX_FP32` | `xianzhikrylov_complex_fp32_t` |
+| `XIANZHIKRYLOV_DD` | two FP64 planes |
 
-The FP32, complex FP32, and Double-Double coefficient methods currently accept
-host CSR input. They use the declared precision for matrix-vector products,
-vector updates, solver arithmetic, convergence checks, and output.
+FP32, complex, and Double-Double support depends on the package and selected
+method. A package returns `XIANZHIKRYLOV_UNSUPPORTED` rather than silently
+changing precision.
 
-DD matrix low planes are stored in the tail extension:
+### Dense Vectors
+
+A vector object describes one or more RHS or solution columns:
+
+- `XIANZHIKRYLOV_RHS_MAJOR` stores `(row,rhs)` at
+  `data[rhs*leading_dimension + row]`.
+- `XIANZHIKRYLOV_ROW_MAJOR` stores `(row,rhs)` at
+  `data[row*leading_dimension + rhs]`.
+- `HOST` and `DEVICE` memory spaces are available where the package supports
+  them.
+- Double-Double vectors use a second `low` plane.
+
+The single-vector function creates a compact one-column RHS-major vector. Use
+`xianzhikrylov_multiple_vector_create` for explicit layout, stride, multiple
+RHS, or Double-Double input.
+
+## Public C API
+
+The public interface has ten functions.
+
+### 1. `xianzhikrylov_create`
 
 ```c
-xianzhikrylov_system_data system = {0};
-system.matrix.values = high_values;
-system.matrix_planes.values_low = low_values;
+xianzhikrylov_status_t xianzhikrylov_create(
+    int32_t device_id,
+    xianzhikrylov_handle_t *handle);
 ```
 
-The tail extension preserves the old ABI2 structure prefix.
+Creates a device-bound compute handle. `device_id` is the visible process
+device ordinal. The installed package selects the vendor backend.
 
-### Vectors
+### 2. `xianzhikrylov_config_set`
 
-`xianzhikrylov_vector` stores RHS vectors and optional initial guesses:
+```c
+xianzhikrylov_status_t xianzhikrylov_config_set(
+    xianzhikrylov_handle_t handle,
+    xianzhikrylov_config_option_t option,
+    const char *value);
+```
 
-- `rows` is the scalar vector length.
-- `rhs_count` is the number of right-hand sides.
-- `RHS_MAJOR`: element `(i,j)` is at `j*leading_dimension+i`.
-- `ROW_MAJOR`: element `(i,j)` is at `i*leading_dimension+j`.
-- DD vectors use `data` for the high plane and `low` for the low plane.
-- Buffer sizes are measured in bytes and include any padding.
+Loads the solver JSON file. ABI 3 currently defines one option:
 
-`HOST` input is copied by the library. Ordinary FP64 methods may borrow a
-`DEVICE` buffer owned by the caller. Other precision methods currently accept
-host CSR input.
+```c
+XIANZHIKRYLOV_CONFIG_FILE
+```
 
-## Seven C Functions
+Call this function before the first `execute` that depends on the
+configuration. The library copies the path and does not retain the caller's
+string.
 
-### `xianzhikrylov_init(device_id, config_path, &handle)`
+The JSON file selects:
 
-Creates a handle, selects the visible GPU, and reads the JSON configuration.
-The installed vendor package determines its runtime and hardware target. The
-function returns only the status and fills `handle` on success.
+- Krylov method and method parameters;
+- preconditioner and numerical controls;
+- relative/absolute tolerances and residual norm;
+- zero, provided-vector, or reuse initial-guess policy;
+- optional external preconditioner provider and provider configuration.
 
-### `xianzhikrylov_set_system(handle, changes, &system)`
+### 3. `xianzhikrylov_matrix_create`
 
-Passes A, b, and an optional initial x. Use
-`XIANZHIKRYLOV_STRUCTURE | XIANZHIKRYLOV_RHS` for the first call.
+```c
+xianzhikrylov_status_t xianzhikrylov_matrix_create(
+    xianzhikrylov_matrix_t *matrix,
+    const xianzhikrylov_matrix_data_t *data);
+```
 
-Later calls may select:
+Creates a matrix descriptor. This operation does not allocate the complete
+device matrix, analyze the sparsity pattern, or build a preconditioner.
 
-- `XIANZHIKRYLOV_VALUES`: A changed, structure stayed the same.
-- `XIANZHIKRYLOV_RHS`: b changed.
-- `XIANZHIKRYLOV_STRUCTURE`: the complete system must be replaced.
-- `XIANZHIKRYLOV_INITIAL_X`: provide a non-zero initial guess where supported.
+The data structure starts with:
 
-### `xianzhikrylov_solve_prepare(handle, stage, &info)`
+```c
+data.abi_version = XIANZHIKRYLOV_ABI_VERSION;
+data.struct_size = sizeof(data);
+```
 
-Builds structural or numerical preparation data:
+Unused format-specific buffers must contain a null pointer and zero byte size.
+The descriptor keeps the caller's array addresses; it does not own the arrays.
 
-- `XIANZHIKRYLOV_STRUCTURE_STAGE`
-- `XIANZHIKRYLOV_NUMERIC_STAGE`
-- `XIANZHIKRYLOV_AUTO_STAGE`
+### 4. `xianzhikrylov_vector_create`
 
-`info` is optional and reports epochs and build counts.
+```c
+xianzhikrylov_status_t xianzhikrylov_vector_create(
+    xianzhikrylov_vector_t *vector,
+    int64_t size,
+    void *data,
+    xianzhikrylov_value_type_t value_type,
+    xianzhikrylov_memory_space_t memory_space);
+```
 
-### `xianzhikrylov_solve(handle)`
+Creates a compact one-column vector. It is equivalent to a multiple-vector
+object with:
 
-Runs the method selected by `config.json` and returns the status. Every RHS must
-meet its stopping condition before the call returns `CONVERGED`.
+```text
+rhs_count = 1
+layout = XIANZHIKRYLOV_RHS_MAJOR
+leading_dimension = size
+```
 
-### `xianzhikrylov_print_info(handle)`
+Double-Double vectors must use the multiple-vector function so that both planes
+can be supplied.
 
-Prints the latest status, iteration count, method ID, residual, RHS norm, and
-timing information.
+### 5. `xianzhikrylov_multiple_vector_create`
 
-### `xianzhikrylov_solution_copy(handle, &output)`
+```c
+xianzhikrylov_status_t xianzhikrylov_multiple_vector_create(
+    xianzhikrylov_vector_t *vector,
+    int64_t length,
+    int64_t rhs_count,
+    int64_t leading_dimension,
+    xianzhikrylov_layout_t layout,
+    void *data,
+    void *low,
+    xianzhikrylov_value_type_t value_type,
+    xianzhikrylov_memory_space_t memory_space);
+```
 
-Copies x to caller-owned host buffers. `output.scalar_type` must exactly match
-the method precision. No implicit conversion is performed.
+Creates a vector for RHS, an initial solution, or a solution destination.
+The function does not allocate or copy the dense buffer. `low` is required for
+Double-Double and must be null for other value types.
 
-### `xianzhikrylov_destroy(&handle)`
+### 6. `xianzhikrylov_execute`
 
-Releases library-owned resources and clears the handle. Cleanup does not
-require a valid runtime license.
+```c
+xianzhikrylov_status_t xianzhikrylov_execute(
+    xianzhikrylov_handle_t handle,
+    xianzhikrylov_phase_t phase,
+    xianzhikrylov_matrix_t matrix,
+    xianzhikrylov_vector_t solution,
+    xianzhikrylov_vector_t rhs);
+```
 
-## Configuration
+Executes a preparation or solve phase.
 
-Each sample has a `config.json`. A standard method looks like:
+| Phase | `matrix` | `solution` | `rhs` | Action |
+| --- | --- | --- | --- | --- |
+| `XIANZHIKRYLOV_PHASE_ANALYSIS` | required | null | null | structural analysis and planning |
+| `XIANZHIKRYLOV_PHASE_NUMERIC_PREPARE` | required | null | null | numerical preconditioner preparation |
+| `XIANZHIKRYLOV_PHASE_SOLVE` | required | required | required | solve using prepared data |
+| `XIANZHIKRYLOV_PHASE_ALL` | required | required | required | complete preparation and solve |
+
+`ANALYSIS` and `NUMERIC_PREPARE` return `XIANZHIKRYLOV_SUCCESS`.
+`SOLVE` and `ALL` return `XIANZHIKRYLOV_CONVERGED` only when every RHS meets
+its configured stopping criterion.
+
+If the solution object uses `XIANZHIKRYLOV_HOST`, the final solution is written
+directly to the caller's host buffer. No separate download function exists.
+
+Reuse rules:
+
+- unchanged A and b: repeat `SOLVE`;
+- unchanged structure and changed A values: `NUMERIC_PREPARE`, then `SOLVE`;
+- changed structure: `ANALYSIS`, `NUMERIC_PREPARE`, then `SOLVE`;
+- no phase separation: `ALL`.
+
+### 7. `xianzhikrylov_print_info`
+
+```c
+xianzhikrylov_status_t xianzhikrylov_print_info(
+    xianzhikrylov_handle_t handle);
+```
+
+Prints the most recent solve status, per-RHS iterations, method ID, residual,
+RHS norm, and preparation/solve timing. The function does not rerun the solve.
+
+### 8. `xianzhikrylov_matrix_destroy`
+
+```c
+xianzhikrylov_status_t xianzhikrylov_matrix_destroy(
+    xianzhikrylov_matrix_t matrix);
+```
+
+Destroys the descriptor only. The library never frees application arrays.
+Set the caller's object variable to null after destruction.
+
+### 9. `xianzhikrylov_vector_destroy`
+
+```c
+xianzhikrylov_status_t xianzhikrylov_vector_destroy(
+    xianzhikrylov_vector_t vector);
+```
+
+Destroys a single-RHS or multiple-RHS vector descriptor without freeing its
+dense buffer.
+
+### 10. `xianzhikrylov_destroy`
+
+```c
+xianzhikrylov_status_t xianzhikrylov_destroy(
+    xianzhikrylov_handle_t handle);
+```
+
+Releases library-owned workspace, prepared data, and external-provider state.
+Cleanup does not require a valid runtime license.
+
+## JSON Configuration
+
+A standard FGMRES + ILU(0) configuration is:
 
 ```json
 {
@@ -137,54 +289,147 @@ Each sample has a `config.json`. A standard method looks like:
   "solver": {
     "method": "fgmres",
     "preconditioner": "ilu0",
-    "max_iterations": 500,
-    "restart": 30,
-    "relative_tolerance": 1e-8,
+    "max_iterations": 2000,
+    "restart": 40,
+    "relative_tolerance": 1e-9,
     "absolute_tolerance": 0,
     "initial_guess": "zero"
   }
 }
 ```
 
-Common iterative methods include `cg`, `pcg`, `fcg`, `bicg`, `bicgstab`,
-`gmres`, `fgmres`, and `gcr`. Jacobi, ILU(0), IC(0), DIC, DILU, HSGS/SSOR,
-and block variants are available only on compatible matrix and method combinations.
+Supported `initial_guess` values are:
 
-The convergence test is
-`||r||_p <= max(atol, rtol*||b||_p)`, where `p` is the configured residual norm
-and `r=b-Ax`. Selecting a norm changes stopping and reporting, not the
-algorithm's required internal inner products.
+- `zero`: the library starts from zero;
+- `provided`: the current solution-vector contents are the initial guess and
+  are overwritten by the final solution;
+- `reuse`: use the previous internal solution where the route supports it.
 
-## Extended Routes
+For `provided`, initialize the solution vector before `SOLVE` or `ALL`.
 
-Native FP32:
+The residual stopping rule is:
 
-```json
-{"extended_solver":{"method":"fgmres_fp32","preconditioner":"jacobi","restart":30,"max_iterations":500,"tolerance":1e-5}}
+```text
+norm_p(r) <= max(atol, rtol * norm_p(b))
 ```
 
-Native complex FP32 with multiple RHS:
+where `r = b - A x`. `residual_norm` may select `l1`, `l2`, or `linf` on
+supported packages. Changing the stopping norm does not replace required
+internal inner products used by a Krylov algorithm.
+
+## LinglongAMG and External Preconditioners
+
+A package may integrate LinglongAMG or another external provider behind the
+same ten public functions. The provider is selected by JSON:
 
 ```json
-{"extended_solver":{"method":"fgmres_complex_fp32_batch","restart":15,"max_iterations":500,"tolerance":1e-5}}
+{
+  "preconditioner": {
+    "type": "amg",
+    "provider": "linglongamg",
+    "library_path": "/path/to/liblinglongamg.so",
+    "config_path": "/path/to/amg_config.json"
+  }
+}
 ```
 
-Native Double-Double matrix solve without AMG:
+When that integration is installed:
 
-```json
-{"extended_solver":{"method":"fgmres_dd","provider":"none","restart":15,"max_iterations":1000,"tolerance":1e-10}}
+- `ANALYSIS` may perform provider capability or structural checks;
+- `NUMERIC_PREPARE` builds the AMG hierarchy and numerical state;
+- `SOLVE` runs the outer Krylov method and calls one provider cycle per
+  preconditioner application;
+- `ALL` performs the complete sequence.
+
+The XianzhiKrylov and provider licenses are independent. A missing or invalid
+provider configuration returns an error; the library does not silently switch
+to another preconditioner.
+
+## Quick Start with `17_fgmres_ilu0`
+
+`17_fgmres_ilu0` is the recommended first sample. It uses a general CSR matrix
+and the common FGMRES + ILU(0) route.
+
+Place the extracted package under `libraries/`:
+
+```text
+libraries/
+└── XianzhiKrylov-<package-name>/
+    ├── include/
+    ├── lib/
+    └── license.key
 ```
 
-The installed package determines whether additional complex FP64, projected
-PCG, external AMG, or application-specific methods are available. An
-unsupported combination returns `UNSUPPORTED`; the library does not silently
-change method or preconditioner.
+Build and run:
 
-## Result Rules
+```bash
+make -C 17_fgmres_ilu0
+make -C 17_fgmres_ilu0 run
+```
 
-- Status `1` means `CONVERGED`; status `0` means an action completed.
-- `MAX_ITERATIONS`, `BREAKDOWN`, and `STAGNATED` are not successful solves.
-- Review the independent residual printed by the sample.
-- Do not change b or relax tolerances to make an incorrect result pass.
-- DD output remains two planes; do not round it to one FP64 array unless the
-  application explicitly accepts that loss of precision.
+If several packages are installed:
+
+```bash
+make -C 17_fgmres_ilu0 run \
+  LIBRARY_ROOT=/path/to/XianzhiKrylov-<package-name>
+```
+
+The solve portion of the sample follows this sequence:
+
+```c
+xianzhikrylov_handle_t handle = NULL;
+
+xianzhikrylov_create(0, &handle);
+xianzhikrylov_config_set(
+    handle, XIANZHIKRYLOV_CONFIG_FILE, "config.json");
+
+xianzhikrylov_matrix_create(
+    &matrix_object, &matrix_data);
+xianzhikrylov_multiple_vector_create(
+    &rhs_object, rows, rhs_count, rows,
+    XIANZHIKRYLOV_RHS_MAJOR, rhs_values, NULL,
+    XIANZHIKRYLOV_FP64, XIANZHIKRYLOV_HOST);
+xianzhikrylov_multiple_vector_create(
+    &solution_object, rows, rhs_count, rows,
+    XIANZHIKRYLOV_RHS_MAJOR, solution_values, NULL,
+    XIANZHIKRYLOV_FP64, XIANZHIKRYLOV_HOST);
+
+xianzhikrylov_execute(
+    handle, XIANZHIKRYLOV_PHASE_ALL,
+    matrix_object, solution_object, rhs_object);
+
+xianzhikrylov_print_info(handle);
+```
+
+Production code must check every returned status. The complete sample also
+computes `b - A x` independently and verifies its residual.
+
+## Errors and Result Rules
+
+Important status values:
+
+| Status | Meaning |
+| --- | --- |
+| `XIANZHIKRYLOV_SUCCESS` | an action completed |
+| `XIANZHIKRYLOV_CONVERGED` | every RHS met the stopping criterion |
+| `XIANZHIKRYLOV_MAX_ITERATIONS` | iteration limit reached |
+| `XIANZHIKRYLOV_INVALID_ARGUMENT` | malformed descriptor or argument |
+| `XIANZHIKRYLOV_UNSUPPORTED` | route, format, precision, or provider is unavailable |
+| `XIANZHIKRYLOV_STATE_ERROR` | calls were made in an invalid lifecycle state |
+| `XIANZHIKRYLOV_LICENSE_ERROR` | runtime authorization failed |
+
+`MAX_ITERATIONS`, `BREAKDOWN`, and `STAGNATED` are not successful numerical
+results. Do not relax tolerances or modify the RHS to turn a failed residual
+check into a pass.
+
+## Ownership Summary
+
+- The application owns all matrix and dense-vector buffers.
+- Matrix/vector descriptors hold borrowed addresses.
+- Keep buffers valid through every `execute` call that consumes the object.
+- Destroy data objects during application cleanup.
+- Call `xianzhikrylov_destroy` once after all work on that handle is complete.
+- Serialize calls that share one handle.
+
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for build, loading, device,
+license, and data-file diagnostics.

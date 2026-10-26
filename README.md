@@ -5,8 +5,8 @@
 XianzhiKrylov solves sparse linear systems with GPU Krylov methods. Packages
 from different GPU vendors use the same C API. This repository provides
 independent C samples that load a matrix and right-hand side, select a method
-with `config.json`, solve `Ax=b`, copy back x, and verify the original-system
-residual.
+with `config.json`, create matrix and vector objects, execute `Ax=b`, and
+verify the original-system residual.
 
 The samples cover common iterative methods, preconditioners, sparse matrix
 formats, multiple right-hand sides, and several data precisions.
@@ -159,9 +159,10 @@ make clean
 ### Sample Input
 
 The files in `matrices/` contain sparse patterns and fixed generation settings.
-Each sample creates deterministic matrix values and a right-hand side, then uses
-the original system for an independent residual check. The sample `Makefile`
-selects the appropriate default matrix.
+Each sample creates deterministic matrix values and a right-hand side, passes
+host A, b, and x to `xianzhikrylov_execute(XIANZHIKRYLOV_PHASE_ALL)`, then uses
+the original system for an independent residual check. The library writes the
+final solution directly to the host x object.
 
 `config.json` selects the method, preconditioner, tolerances, and precision-
 specific method.
@@ -172,8 +173,8 @@ See [matrices/README.md](matrices/README.md) and
 ## Output and Verification
 
 A successful solve prints status, iteration count, method information,
-residual, RHS norm, and preparation/solve timing. The program also copies x
-and computes the original-system residual independently.
+residual, RHS norm, and preparation/solve timing. The program computes the
+original-system residual independently.
 
 ```text
 XianzhiKrylov status=1 converged=1 iterations=<n> method=<method> residual=<r> rhs_norm=<b> relative_residual=<ratio> prepare_solve_seconds=<time>
@@ -184,8 +185,9 @@ API status `1` means the solver reported convergence. Numerical correctness
 requires the independent residual to satisfy the documented tolerance. `PASS`
 and exit code `0` indicate that both checks succeeded.
 
-See [docs/PRODUCT_GUIDE.md](docs/PRODUCT_GUIDE.md) for the unified C API,
-configuration fields, precision definitions, and ownership rules.
+See [docs/PRODUCT_GUIDE.md](docs/PRODUCT_GUIDE.md) for the product overview,
+ten-function C API, execution phases, configuration fields, precision
+definitions, external AMG integration, and ownership rules.
 
 ## Troubleshooting
 

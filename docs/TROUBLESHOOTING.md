@@ -73,7 +73,7 @@ make run GPU_RUNTIME_LIB_DIR="$GPU_RUNTIME_LIB_DIR"
 
 Do not copy a `.so` file from a package built for another vendor.
 
-## `init status=11` or `LICENSE_ERROR`
+## `config_set status=11` or `LICENSE_ERROR`
 
 The license check failed. Check:
 
@@ -99,7 +99,7 @@ sample configuration:
 ./sample /path/to/matrix.csrpat config.json
 ```
 
-## `solve status=2`
+## `execute status=2`
 
 The solver used all allowed iterations. First test the setup with
 `17_fgmres_ilu0`. For another matrix, change the method, preconditioner,
