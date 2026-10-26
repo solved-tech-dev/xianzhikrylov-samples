@@ -27,8 +27,6 @@ $(TARGET): sample.c sample_common.h | check
 	$(CC) $(CPPFLAGS) $(CFLAGS) sample.c -o $@ $(LDFLAGS) $(LDLIBS)
 
 run: all
-	@! grep -q '/absolute/path/to/' solver.json || { \
-	    printf '%s\n' 'Edit solver.json: set LinglongAMG library_path and config_path.' >&2; exit 1; }
 	LD_LIBRARY_PATH="$(XK_ROOT)/lib$(if $(GPU_RUNTIME_LIB_DIR),:$(GPU_RUNTIME_LIB_DIR),)$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" \
 	    ./$(TARGET) $(RUN_ARGS)
 

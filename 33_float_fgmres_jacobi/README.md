@@ -1,14 +1,13 @@
-# Float Buffers with FGMRES and ILU(0)
+# Native FP32 FGMRES with Jacobi
 
-This sample shows how to solve `Ax=b` using **FGMRES** with the **ILU(0)** preconditioner.
-Matrix format: `CSR`. Input data type: `float`.
+This sample solves `Ax=b` in **FP32** with **FGMRES** and a Jacobi
+preconditioner. Matrix format: `CSR`.
 
 ## Input data
 
-The sample stores A, b, and the checked solution in `float` arrays. It converts
-those arrays to FP64 descriptors before it calls XianzhiKrylov, because the
-current public matrix interface accepts FP64 matrix coefficients. This does not
-mean that the solver uses FP32 arithmetic.
+The sample stores A, b, and x in `float` arrays. It passes those arrays directly
+to XianzhiKrylov. The matrix-vector products, vector updates, FGMRES arithmetic,
+and Jacobi preconditioner use FP32 values without conversion to FP64.
 
 ## Run this sample
 
@@ -27,11 +26,11 @@ XianzhiKrylov/
 Change `/path/to` to the directory where you extracted the package:
 
 ```bash
-cd /path/to/XianzhiKrylov/samples/33_float_fgmres_ilu0
+cd /path/to/XianzhiKrylov/samples/33_float_fgmres_jacobi
 pwd
 ```
 
-The final directory printed by `pwd` should be `33_float_fgmres_ilu0`. If the directory does not
+The final directory printed by `pwd` should be `33_float_fgmres_jacobi`. If the directory does not
 exist, run `cd /path/to/XianzhiKrylov/samples` and `ls` to list the samples.
 
 ### 2. Check the license
@@ -87,7 +86,7 @@ need to edit `LD_LIBRARY_PATH` for a normal run.
 When it works, the output ends with a line like:
 
 ```text
-Independent residual RHS 1: relative_l2=... absmax=... PASS
+Independent FP32 residual RHS 1: relative_l2=... absmax=... PASS
 ```
 
 `PASS` means that the sample copied x back to the CPU and checked `r=b-Ax` with

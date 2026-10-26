@@ -1,31 +1,18 @@
-# Double-Double FGMRES with LinglongAMG
+# Double-Double FGMRES
 
-This sample shows how to solve `Ax=b` with **Double-Double FGMRES** using a **LinglongAMG V-cycle**.
-Matrix format: `CSR`. Input data type: `double`. Output type: `Double-Double`.
+This sample solves `Ax=b` with **Double-Double FGMRES** and no external
+preconditioner. Matrix format: `CSR`. A, b, and x use Double-Double storage.
 
 ## Input data
 
-Matrix A and b use FP64. The solution is returned as two Double-Double planes:
+Matrix A, b, and x use two FP64 planes for each value:
 
 ```text
 x = high + low
 ```
 
-This gives about 106 to 108 bits of precision. The matrix itself is not stored
-in Double-Double.
-
-## Configure LinglongAMG first
-
-This sample needs a LinglongAMG library and AMG config file that work with your
-XianzhiKrylov package. Edit `solver.json` and replace both example paths with
-full paths:
-
-```json
-"library_path": "/actual/path/liblinglongamg.so",
-"config_path": "/actual/path/linglongamg-config.json"
-```
-
-Use full paths. Do not use `~` or environment variables in these paths.
+The low plane is not discarded before SpMV, FGMRES, or the final residual check.
+The sample does not need a separate AMG library.
 
 ## Run this sample
 
@@ -104,7 +91,7 @@ need to edit `LD_LIBRARY_PATH` for a normal run.
 When it works, the output ends with a line like:
 
 ```text
-Independent residual RHS 1: relative_l2=... absmax=... PASS
+Independent DD residual: relative_l2=... absmax=... PASS
 ```
 
 `PASS` means that the sample copied x back to the CPU and checked `r=b-Ax` with

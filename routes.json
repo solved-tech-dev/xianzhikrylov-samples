@@ -414,21 +414,21 @@
     "data_format": "double complex"
   },
   {
-    "name": "float_fgmres_ilu0",
-    "method": "fgmres",
-    "pc": "ilu0",
+    "name": "float_fgmres_jacobi",
+    "method": "fgmres_fp32",
+    "pc": "jacobi",
     "format": "csr",
     "block": 1,
     "spd": false,
     "data": "transport_1m.csrpat",
-    "id": "33_float_fgmres_ilu0",
+    "id": "33_float_fgmres_jacobi",
     "pattern_model": 2,
     "pattern_seed": "584b32364d415447",
     "data_format": "float"
   },
   {
     "name": "float_complex_batch3",
-    "method": "fgmres_complex_batch",
+    "method": "fgmres_complex_fp32_batch",
     "format": "csr",
     "block": 1,
     "data": "complex_262k_3rhs.csrpat",
@@ -447,7 +447,6 @@
     "id": "35_dd_fgmres",
     "pattern_model": 1,
     "pattern_seed": "584b32364d415447",
-    "data_format": "double",
-    "solution_format": "Double-Double"
+    "data_format": "Double-Double"
   }
 ]

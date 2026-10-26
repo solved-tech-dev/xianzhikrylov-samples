@@ -99,61 +99,52 @@ The examples cover:
 - iterative methods: CG, PCG, FCG, BiCG, BiCGSTAB, GMRES, FGMRES, and GCR;
 - preconditioners: none, Jacobi, ILU(0), IC(0), DIC, DILU, and block variants;
 - matrix formats: CSR, BSR, MSR, and LDU;
-- real and complex FP64 data;
-- float and float-complex input samples;
-- a Double-Double solution example.
+- FP64, complex FP64, FP32, complex FP32, and Double-Double data.
 
 The exact route mix depends on the vendor package.
 
 ## Examples
 
-`Input data type` shows how A and b are stored in the example. It does not always
-show the arithmetic used inside the solver. The float and float-complex examples
-convert their arrays to the FP64 and complex-FP64 descriptors used by the current
-public C API.
+`Precision` is the native type used for A, b, and x in the sample and in the
+selected solver route.
 
-| Sample | Solver route | Matrix format | Input data type |
+| Sample name | Method | Matrix type | Precision |
 | --- | --- | --- | --- |
-| [01_cg](01_cg/README.md) | cg / none | CSR | double |
-| [02_bicg](02_bicg/README.md) | bicg / none | CSR | double |
-| [03_bicgstab](03_bicgstab/README.md) | bicgstab / none | CSR | double |
-| [04_gmres](04_gmres/README.md) | gmres / none | CSR | double |
-| [05_fgmres](05_fgmres/README.md) | fgmres / none | CSR | double |
-| [06_gcr](06_gcr/README.md) | gcr / none | CSR | double |
-| [07_pcg_jacobi](07_pcg_jacobi/README.md) | pcg / jacobi | CSR | double |
-| [08_fcg_jacobi](08_fcg_jacobi/README.md) | fcg / jacobi | CSR | double |
-| [09_bicg_jacobi](09_bicg_jacobi/README.md) | bicg / jacobi | CSR | double |
-| [10_bicgstab_jacobi](10_bicgstab_jacobi/README.md) | bicgstab / jacobi | CSR | double |
-| [11_gmres_jacobi](11_gmres_jacobi/README.md) | gmres / jacobi | CSR | double |
-| [12_fgmres_jacobi](12_fgmres_jacobi/README.md) | fgmres / jacobi | CSR | double |
-| [13_gcr_jacobi](13_gcr_jacobi/README.md) | gcr / jacobi | CSR | double |
-| [14_bicg_ilu0](14_bicg_ilu0/README.md) | bicg / ilu0 | CSR | double |
-| [15_bicgstab_ilu0](15_bicgstab_ilu0/README.md) | bicgstab / ilu0 | CSR | double |
-| [16_gmres_ilu0](16_gmres_ilu0/README.md) | gmres / ilu0 | CSR | double |
-| [17_fgmres_ilu0](17_fgmres_ilu0/README.md) | fgmres / ilu0 | CSR | double |
-| [18_gcr_ilu0](18_gcr_ilu0/README.md) | gcr / ilu0 | CSR | double |
-| [19_pcg_ic0](19_pcg_ic0/README.md) | pcg / ic0 | CSR | double |
-| [20_fcg_ic0](20_fcg_ic0/README.md) | fcg / ic0 | CSR | double |
-| [21_gmres_ic0](21_gmres_ic0/README.md) | gmres / ic0 | CSR | double |
-| [22_fgmres_ic0](22_fgmres_ic0/README.md) | fgmres / ic0 | CSR | double |
-| [23_bicgstab_ic0](23_bicgstab_ic0/README.md) | bicgstab / ic0 | CSR | double |
-| [24_bicg_ic0](24_bicg_ic0/README.md) | bicg / ic0 | CSR | double |
-| [25_gcr_ic0](25_gcr_ic0/README.md) | gcr / ic0 | CSR | double |
-| [26_bsr4_fgmres_ilu0](26_bsr4_fgmres_ilu0/README.md) | fgmres / ilu0 | BSR4 | double |
-| [27_bsr4_fgmres_jacobi](27_bsr4_fgmres_jacobi/README.md) | fgmres / block_jacobi | BSR4 | double |
-| [28_bsr4_fgmres_dilu](28_bsr4_fgmres_dilu/README.md) | fgmres / multicolor_block_dilu | BSR4 | double |
-| [29_msr_bicgstab_jacobi](29_msr_bicgstab_jacobi/README.md) | bicgstab / jacobi | MSR | double |
-| [30_ldu_pcg_dic](30_ldu_pcg_dic/README.md) | pcg / dic | LDU | double |
-| [31_ldu_bicgstab_dilu](31_ldu_bicgstab_dilu/README.md) | bicgstab / dilu | LDU | double |
-| [32_complex_batch3](32_complex_batch3/README.md) | fgmres_complex_batch / none | CSR | double complex |
-| [33_float_fgmres_ilu0](33_float_fgmres_ilu0/README.md) | fgmres / ilu0 | CSR | float |
-| [34_float_complex_batch3](34_float_complex_batch3/README.md) | fgmres_complex_batch / none | CSR | float complex |
-| [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES / LinglongAMG | CSR | double |
-
-`35_dd_fgmres` needs a separately installed LinglongAMG library and AMG config
-file. Its license or availability is controlled by LinglongAMG, not by this
-Samples repository. Its input is FP64, and its solution is returned as
-Double-Double.
+| [01_cg](01_cg/README.md) | cg | CSR | FP64 |
+| [02_bicg](02_bicg/README.md) | bicg | CSR | FP64 |
+| [03_bicgstab](03_bicgstab/README.md) | bicgstab | CSR | FP64 |
+| [04_gmres](04_gmres/README.md) | gmres | CSR | FP64 |
+| [05_fgmres](05_fgmres/README.md) | fgmres | CSR | FP64 |
+| [06_gcr](06_gcr/README.md) | gcr | CSR | FP64 |
+| [07_pcg_jacobi](07_pcg_jacobi/README.md) | pcg / jacobi | CSR | FP64 |
+| [08_fcg_jacobi](08_fcg_jacobi/README.md) | fcg / jacobi | CSR | FP64 |
+| [09_bicg_jacobi](09_bicg_jacobi/README.md) | bicg / jacobi | CSR | FP64 |
+| [10_bicgstab_jacobi](10_bicgstab_jacobi/README.md) | bicgstab / jacobi | CSR | FP64 |
+| [11_gmres_jacobi](11_gmres_jacobi/README.md) | gmres / jacobi | CSR | FP64 |
+| [12_fgmres_jacobi](12_fgmres_jacobi/README.md) | fgmres / jacobi | CSR | FP64 |
+| [13_gcr_jacobi](13_gcr_jacobi/README.md) | gcr / jacobi | CSR | FP64 |
+| [14_bicg_ilu0](14_bicg_ilu0/README.md) | bicg / ilu0 | CSR | FP64 |
+| [15_bicgstab_ilu0](15_bicgstab_ilu0/README.md) | bicgstab / ilu0 | CSR | FP64 |
+| [16_gmres_ilu0](16_gmres_ilu0/README.md) | gmres / ilu0 | CSR | FP64 |
+| [17_fgmres_ilu0](17_fgmres_ilu0/README.md) | fgmres / ilu0 | CSR | FP64 |
+| [18_gcr_ilu0](18_gcr_ilu0/README.md) | gcr / ilu0 | CSR | FP64 |
+| [19_pcg_ic0](19_pcg_ic0/README.md) | pcg / ic0 | CSR | FP64 |
+| [20_fcg_ic0](20_fcg_ic0/README.md) | fcg / ic0 | CSR | FP64 |
+| [21_gmres_ic0](21_gmres_ic0/README.md) | gmres / ic0 | CSR | FP64 |
+| [22_fgmres_ic0](22_fgmres_ic0/README.md) | fgmres / ic0 | CSR | FP64 |
+| [23_bicgstab_ic0](23_bicgstab_ic0/README.md) | bicgstab / ic0 | CSR | FP64 |
+| [24_bicg_ic0](24_bicg_ic0/README.md) | bicg / ic0 | CSR | FP64 |
+| [25_gcr_ic0](25_gcr_ic0/README.md) | gcr / ic0 | CSR | FP64 |
+| [26_bsr4_fgmres_ilu0](26_bsr4_fgmres_ilu0/README.md) | fgmres / ilu0 | BSR4 | FP64 |
+| [27_bsr4_fgmres_jacobi](27_bsr4_fgmres_jacobi/README.md) | fgmres / block_jacobi | BSR4 | FP64 |
+| [28_bsr4_fgmres_dilu](28_bsr4_fgmres_dilu/README.md) | fgmres / multicolor_block_dilu | BSR4 | FP64 |
+| [29_msr_bicgstab_jacobi](29_msr_bicgstab_jacobi/README.md) | bicgstab / jacobi | MSR | FP64 |
+| [30_ldu_pcg_dic](30_ldu_pcg_dic/README.md) | pcg / dic | LDU | FP64 |
+| [31_ldu_bicgstab_dilu](31_ldu_bicgstab_dilu/README.md) | bicgstab / dilu | LDU | FP64 |
+| [32_complex_batch3](32_complex_batch3/README.md) | fgmres_complex_batch | CSR | complex FP64 |
+| [33_float_fgmres_jacobi](33_float_fgmres_jacobi/README.md) | fgmres / jacobi | CSR | FP32 |
+| [34_float_complex_batch3](34_float_complex_batch3/README.md) | fgmres_complex_fp32_batch | CSR | complex FP32 |
+| [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES | CSR | Double-Double |
 
 ## Using Your Own Matrix
 
@@ -173,8 +164,9 @@ your own loader and descriptor setup. Keep the public API calls from
 `xianzhikrylov_init` through `xianzhikrylov_destroy`.
 
 The package headers in `include/` contain the current structures and field
-rules. Matrix values remain FP64 for standard routes. The sample generates b
-from a known exact solution so that it can check the answer.
+rules. Standard routes use FP64; the precision samples pass FP32, complex FP32,
+or Double-Double descriptors directly. The samples generate b from a known
+exact solution so that they can check the answer.
 
 ## Repository Layout
 

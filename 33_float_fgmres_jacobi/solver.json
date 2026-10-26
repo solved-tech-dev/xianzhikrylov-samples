@@ -1,0 +1,9 @@
+{
+  "extended_solver": {
+    "method": "fgmres_fp32",
+    "preconditioner": "jacobi",
+    "max_iterations": 500,
+    "restart": 30,
+    "tolerance": 1e-5
+  }
+}

@@ -1,13 +1,13 @@
-# Float Complex Buffers with Batch FGMRES
+# Native Complex FP32 Batch FGMRES
 
-This sample shows how to solve `Ax=b` using **batched complex FP64 FGMRES** with no preconditioner.
-Matrix format: `CSR`. Input data type: `float complex`.
+This sample solves `Ax=b` in **complex FP32** with batched **FGMRES** and no
+preconditioner. Matrix format: `CSR`.
 
 ## Input data
 
-The sample stores A, b, and the checked solution as float complex values. It
-converts those arrays to `xianzhikrylov_complex` descriptors before it calls
-XianzhiKrylov. This does not mean that the solver uses complex-FP32 arithmetic.
+The sample stores A, b, and x as `xianzhikrylov_complex_fp32` values. The
+matrix-vector products, inner products, vector updates, and three-RHS FGMRES
+calculation stay in complex FP32 without conversion to complex FP64.
 
 ## Run this sample
 
@@ -86,7 +86,7 @@ need to edit `LD_LIBRARY_PATH` for a normal run.
 When it works, the output ends with a line like:
 
 ```text
-Independent residual RHS 1: relative_l2=... absmax=... PASS
+Independent complex FP32 residual RHS 1: relative_l2=... absmax=... PASS
 ```
 
 `PASS` means that the sample copied x back to the CPU and checked `r=b-Ax` with

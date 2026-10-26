@@ -1,9 +1,8 @@
 {
   "extended_solver": {
-    "method": "fgmres_complex_batch",
-    "batch": 3,
+    "method": "fgmres_complex_fp32_batch",
     "restart": 15,
-    "drop": 0.08,
-    "tolerance": 1e-8
+    "max_iterations": 500,
+    "tolerance": 1e-5
   }
 }
