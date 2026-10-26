@@ -133,7 +133,6 @@ Each sample has a `config.json`. A standard route looks like:
 {
   "schema_version": 1,
   "matrix_format": "csr",
-  "matrix_symmetry": "general",
   "block_size": 1,
   "solver": {
     "method": "fgmres",

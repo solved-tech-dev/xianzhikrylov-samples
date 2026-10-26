@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "matrix_format": "ldu",
-  "matrix_symmetry": "general",
   "block_size": 1,
   "solver": {
     "method": "bicgstab",

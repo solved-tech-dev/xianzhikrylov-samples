@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "matrix_format": "csr",
-  "matrix_symmetry": "spd",
   "block_size": 1,
   "solver": {
     "method": "cg",

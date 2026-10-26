@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "matrix_format": "bsr",
-  "matrix_symmetry": "general",
   "block_size": 4,
   "solver": {
     "method": "fgmres",
