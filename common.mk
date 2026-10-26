@@ -12,7 +12,10 @@ TARGET ?= sample
 # Use libraries/<package-name>/ when present. A samples directory placed inside
 # an extracted package still defaults to that package root.
 LIBRARY_PACKAGE := $(firstword $(patsubst %/include/XianzhiKrylovAPI.h,%,$(wildcard $(REPO_ROOT)/libraries/*/include/XianzhiKrylovAPI.h)))
-LIBRARY_ROOT ?= $(if $(XIANZHIKRYLOV_ROOT),$(XIANZHIKRYLOV_ROOT),$(if $(LIBRARY_PACKAGE),$(LIBRARY_PACKAGE),$(abspath $(REPO_ROOT)/..)))
+PACKAGE_PARENT := $(abspath $(REPO_ROOT)/..)
+PACKAGE_GRANDPARENT := $(abspath $(REPO_ROOT)/../..)
+EXTRACTED_PACKAGE := $(if $(wildcard $(PACKAGE_GRANDPARENT)/include/XianzhiKrylovAPI.h),$(PACKAGE_GRANDPARENT),$(PACKAGE_PARENT))
+LIBRARY_ROOT ?= $(if $(XIANZHIKRYLOV_ROOT),$(XIANZHIKRYLOV_ROOT),$(if $(LIBRARY_PACKAGE),$(LIBRARY_PACKAGE),$(EXTRACTED_PACKAGE)))
 
 ifeq ($(strip $(MATRIX_FILE)),)
 $(error Set MATRIX_FILE in the sample Makefile)
