@@ -8,7 +8,7 @@ an extracted package under `libraries/` or set `LIBRARY_ROOT` to its root.
 The runtime license must be stored as `license.key` in that same package root.
 
 The package README defines the supported CPU, glibc, GPU architectures, vendor
-toolkit, and available route set. A newer toolkit is not automatically
+toolkit, and available method set. A newer toolkit is not automatically
 supported.
 
 ## Data Model
@@ -46,7 +46,7 @@ value.struct_size = sizeof(value);
 | `XIANZHIKRYLOV_COMPLEX_FP32` | `xianzhikrylov_complex_fp32` |
 | `XIANZHIKRYLOV_DD` | Two FP64 planes, high in `data`/`values` and low in `low`/`matrix_planes` |
 
-The FP32, complex FP32, and Double-Double coefficient routes currently accept
+The FP32, complex FP32, and Double-Double coefficient methods currently accept
 host CSR input. They use the declared precision for matrix-vector products,
 vector updates, solver arithmetic, convergence checks, and output.
 
@@ -71,8 +71,8 @@ The tail extension preserves the old ABI2 structure prefix.
 - DD vectors use `data` for the high plane and `low` for the low plane.
 - Buffer sizes are measured in bytes and include any padding.
 
-`HOST` input is copied by the library. Ordinary FP64 routes may borrow a
-`DEVICE` buffer owned by the caller. Other precision routes currently accept
+`HOST` input is copied by the library. Ordinary FP64 methods may borrow a
+`DEVICE` buffer owned by the caller. Other precision methods currently accept
 host CSR input.
 
 ## Seven C Functions
@@ -107,18 +107,18 @@ Builds structural or numerical preparation data:
 
 ### `xianzhikrylov_solve(handle)`
 
-Runs the route selected by `config.json` and returns the status. Every RHS must
+Runs the method selected by `config.json` and returns the status. Every RHS must
 meet its stopping condition before the call returns `CONVERGED`.
 
 ### `xianzhikrylov_print_info(handle)`
 
-Prints the latest status, iteration count, route ID, residual, RHS norm, and
+Prints the latest status, iteration count, method ID, residual, RHS norm, and
 timing information.
 
-### `xianzhikrylov_solution_download(handle, &output)`
+### `xianzhikrylov_solution_copy(handle, &output)`
 
 Copies x to caller-owned host buffers. `output.scalar_type` must exactly match
-the route precision. No implicit conversion is performed.
+the method precision. No implicit conversion is performed.
 
 ### `xianzhikrylov_destroy(&handle)`
 
@@ -127,7 +127,7 @@ require a valid runtime license.
 
 ## Configuration
 
-Each sample has a `config.json`. A standard route looks like:
+Each sample has a `config.json`. A standard method looks like:
 
 ```json
 {
@@ -148,7 +148,7 @@ Each sample has a `config.json`. A standard route looks like:
 
 Common iterative methods include `cg`, `pcg`, `fcg`, `bicg`, `bicgstab`,
 `gmres`, `fgmres`, and `gcr`. Jacobi, ILU(0), IC(0), DIC, DILU, HSGS/SSOR,
-and block variants are available only on compatible matrix and method routes.
+and block variants are available only on compatible matrix and method combinations.
 
 The convergence test is
 `||r||_p <= max(atol, rtol*||b||_p)`, where `p` is the configured residual norm
@@ -176,7 +176,7 @@ Native Double-Double matrix solve without AMG:
 ```
 
 The installed package determines whether additional complex FP64, projected
-PCG, external AMG, or application-specific routes are available. An
+PCG, external AMG, or application-specific methods are available. An
 unsupported combination returns `UNSUPPORTED`; the library does not silently
 change method or preconditioner.
 

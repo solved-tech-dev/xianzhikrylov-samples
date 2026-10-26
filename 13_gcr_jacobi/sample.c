@@ -52,9 +52,9 @@ int main(int argc, char **argv)
         rc = 1;
         goto done;
     }
-    status = xianzhikrylov_solution_download(handle, &solution.descriptor);
+    status = xianzhikrylov_solution_copy(handle, &solution.descriptor);
     if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "solution_download status=%d\n", (int)status);
+        fprintf(stderr, "solution_copy status=%d\n", (int)status);
         rc = 1;
         goto done;
     }

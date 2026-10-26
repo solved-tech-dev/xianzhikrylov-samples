@@ -17,7 +17,7 @@ You can download library packages and licenses from
 ## Repository Layout
 
 ```text
-XianzhiKrylov-samples/
+xianzhikrylov-samples/
 ├── README.md
 ├── Makefile
 ├── common.mk
@@ -36,6 +36,7 @@ XianzhiKrylov-samples/
 ├── matrices/
 │   ├── README.md
 │   ├── PATTERN_FORMAT.md
+│   ├── transport_1m.csrpat
 │   └── ...
 │
 ├── docs/
@@ -54,20 +55,17 @@ XianzhiKrylov-samples/
 
 `common.mk` contains the shared build, link, run, and clean rules.
 `common/sample_common.h` contains helper code used by multiple samples.
-`matrices/` contains only shared input data. Each `NN_<feature>/` directory
+`matrices/` contains only shared matrix files. Each `NN_<feature>/` directory
 contains one independent sample.
 
 ## Quick Start
 
 ### Requirements
 
+- a downloaded XianzhiKrylov package and its license;
 - a Linux machine supported by the selected package;
 - the GPU and the toolkit/runtime required by the selected package;
-- a C compiler and GNU Make;
-- a valid license for the selected package and GPU.
-
-The package README defines the exact supported environment. A newer
-toolkit/runtime is not automatically supported.
+- a C compiler and GNU Make.
 
 ### Library Package and License
 
@@ -102,7 +100,6 @@ make -C 17_fgmres_ilu0 run LIBRARY_ROOT=/path/to/package
 ### Build and Run
 
 ```bash
-git clone https://github.com/solved-tech-dev/xianzhikrylov-samples.git
 cd xianzhikrylov-samples
 make -C 17_fgmres_ilu0
 make -C 17_fgmres_ilu0 run
@@ -127,8 +124,8 @@ make clean
 
 ### Samples List
 
-`Precision` is the native type used for A, b, and x in the sample and selected
-route.
+`Precision` is the data type used for A, b, and x in the sample and selected
+method.
 
 | Sample name | Method | Matrix format | Precision |
 | --- | --- | --- | --- |
@@ -168,9 +165,6 @@ route.
 | [34_float_complex_batch3](34_float_complex_batch3/README.md) | fgmres_complex_fp32_batch | CSR | complex FP32 |
 | [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES | CSR | Double-Double |
 
-An unsupported route combination returns `UNSUPPORTED`; the library does not
-silently switch method, preconditioner, or precision.
-
 ### Sample Input
 
 The files in `matrices/` contain sparse patterns and fixed generation settings.
@@ -179,21 +173,19 @@ the original system for an independent residual check. The sample `Makefile`
 selects the appropriate default matrix.
 
 `config.json` selects the method, preconditioner, tolerances, and precision-
-specific route. Users can replace the default matrix or configuration with
-their own input as long as the documented dimensions, indexing, layout, and
-precision are preserved.
+specific method.
 
 See [matrices/README.md](matrices/README.md) and
 [matrices/PATTERN_FORMAT.md](matrices/PATTERN_FORMAT.md) for details.
 
 ## Output and Verification
 
-A successful solve prints status, iteration count, route information,
-residual, RHS norm, and preparation/solve timing. The program also downloads x
+A successful solve prints status, iteration count, method information,
+residual, RHS norm, and preparation/solve timing. The program also copies x
 and computes the original-system residual independently.
 
 ```text
-XianzhiKrylov status=1 converged=1 iterations=<n> route=<route> residual=<r> rhs_norm=<b> relative_residual=<ratio> prepare_solve_seconds=<time>
+XianzhiKrylov status=1 converged=1 iterations=<n> method=<method> residual=<r> rhs_norm=<b> relative_residual=<ratio> prepare_solve_seconds=<time>
 Independent residual RHS 1: relative_l2=<value> absmax=<value> PASS
 ```
 
@@ -215,7 +207,7 @@ Common checks:
 - unsupported environment: use the package built for the target GPU and its
   required toolkit/runtime;
 - missing indirect runtime library: set `GPU_RUNTIME_LIB_DIR`;
-- no convergence: inspect `config.json`, the route support table, and the
+- no convergence: inspect `config.json`, the method support table, and the
   independent residual.
 
 See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for detailed steps.

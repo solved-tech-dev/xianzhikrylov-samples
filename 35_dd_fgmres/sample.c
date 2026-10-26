@@ -193,9 +193,9 @@ int main(int argc, char **argv)
     output.data.bytes = (size_t)matrix.h.rows * sizeof(double);
     output.low.data = solution_low;
     output.low.bytes = (size_t)matrix.h.rows * sizeof(double);
-    status = xianzhikrylov_solution_download(handle, &output);
+    status = xianzhikrylov_solution_copy(handle, &output);
     if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "solution_download status=%d\n", (int)status);
+        fprintf(stderr, "solution_copy status=%d\n", (int)status);
         rc = 1;
         goto done;
     }

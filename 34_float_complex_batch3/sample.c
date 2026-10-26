@@ -181,9 +181,9 @@ int main(int argc, char **argv)
     output.data.data = solution;
     output.data.bytes = (size_t)vector_count *
                         sizeof(xianzhikrylov_complex_fp32);
-    status = xianzhikrylov_solution_download(handle, &output);
+    status = xianzhikrylov_solution_copy(handle, &output);
     if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "solution_download status=%d\n", (int)status);
+        fprintf(stderr, "solution_copy status=%d\n", (int)status);
         rc = 1;
         goto done;
     }

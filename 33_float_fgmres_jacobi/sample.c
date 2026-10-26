@@ -155,9 +155,9 @@ int main(int argc, char **argv)
     output.leading_dimension = matrix.h.rows;
     output.data.data = solution;
     output.data.bytes = (size_t)vector_count * sizeof(float);
-    status = xianzhikrylov_solution_download(handle, &output);
+    status = xianzhikrylov_solution_copy(handle, &output);
     if (status != XIANZHIKRYLOV_SUCCESS) {
-        fprintf(stderr, "solution_download status=%d\n", (int)status);
+        fprintf(stderr, "solution_copy status=%d\n", (int)status);
         rc = 1;
         goto done;
     }
