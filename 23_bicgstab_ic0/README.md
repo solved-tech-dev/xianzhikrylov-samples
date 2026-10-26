@@ -1,12 +1,12 @@
 # BiCGSTAB with IC(0)
 
-This sample solves `Ax=b` with **BiCGSTAB** and **IC(0)** preconditioning.
+This sample shows how to solve `Ax=b` using **BiCGSTAB** with the **IC(0)** preconditioner.
 Matrix format: `CSR`. Data format: `double`.
 
 ## Run this sample
 
-The commands below assume that `samples/` is located inside an extracted
-XianzhiKrylov package:
+These commands assume that `samples/` is inside an extracted XianzhiKrylov
+package:
 
 ```text
 XianzhiKrylov/
@@ -17,7 +17,7 @@ XianzhiKrylov/
 
 ### 1. Enter this sample
 
-Replace `/path/to` with the directory where the package was extracted:
+Change `/path/to` to the directory where you extracted the package:
 
 ```bash
 cd /path/to/XianzhiKrylov/samples/23_bicgstab_ic0
@@ -25,12 +25,11 @@ pwd
 ```
 
 The final directory printed by `pwd` should be `23_bicgstab_ic0`. If the directory does not
-exist, run `cd /path/to/XianzhiKrylov/samples` followed by `ls` to display the
-available sample directories.
+exist, run `cd /path/to/XianzhiKrylov/samples` and `ls` to list the samples.
 
-### 2. Verify the license
+### 2. Check the license
 
-For a first run, place the license in the package root:
+On first use, copy the license to the package root:
 
 ```bash
 cp /path/to/xianzhikrylov-xxxx.license.key ../../license.key
@@ -38,8 +37,7 @@ chmod 600 ../../license.key
 ls -l ../../license.key
 ```
 
-If you already placed a license according to the
-[main Samples guide](../README.md), skip this step.
+If the license is already installed, skip this step.
 
 ### 3. Compile
 
@@ -57,10 +55,10 @@ make clean
 make XK_BACKEND=2
 ```
 
-For another vendor, replace the numeric value after `XK_BACKEND=` with the
-backend number documented in that vendor package.
+For another vendor, replace the number after `XK_BACKEND=` with the backend
+number listed in that package's README.
 
-Compilation creates an executable named `sample`.
+The build creates an executable named `sample`.
 
 ### 4. Run
 
@@ -76,17 +74,17 @@ Hygon DCU, ROCm, or HIP:
 make run XK_BACKEND=2
 ```
 
-`make run` sets the XianzhiKrylov library path for the duration of the program.
-It is not necessary to edit `LD_LIBRARY_PATH` for the normal run.
+`make run` sets the XianzhiKrylov library path while the program runs. You do not
+need to edit `LD_LIBRARY_PATH` for a normal run.
 
-Successful output ends with a line similar to:
+When it works, the output ends with a line like:
 
 ```text
 Independent residual RHS 1: relative_l2=... absmax=... PASS
 ```
 
-`PASS` means that the program downloaded the solution and independently checked
-the original system `r=b-Ax` on the CPU. Check the process exit code with:
+`PASS` means that the sample copied x back to the CPU and checked `r=b-Ax` with
+the original matrix. Check the exit code with:
 
 ```bash
 echo $?
@@ -94,10 +92,10 @@ echo $?
 
 An exit code of `0` means success.
 
-## Build from a standalone Samples checkout
+## Run from a separate Samples download
 
-When this directory is not inside the XianzhiKrylov package, point `XK_ROOT` at
-the directory containing `include/` and `lib/`:
+If this sample is outside the XianzhiKrylov package, set `XK_ROOT` to the
+directory that contains `include/` and `lib/`:
 
 ```bash
 export XK_ROOT="/path/to/XianzhiKrylov"
@@ -106,38 +104,36 @@ make XK_ROOT="$XK_ROOT" XK_BACKEND=1
 make run XK_ROOT="$XK_ROOT" XK_BACKEND=1
 ```
 
-Replace `XK_BACKEND=1` with the backend number for the selected package.
+Change `XK_BACKEND=1` to the value for your package.
 
 ## Files
 
-- `sample.c`: complete call sequence through the public C API;
-- `sample_common.h`: sample-only matrix reading, conversion, and residual checks;
+- `sample.c`: a full solve example that uses the public C API;
+- `sample_common.h`: helper code for reading A and b, converting formats, and checking the result;
 - `solver.json`: configuration file that selects the iterative method and preconditioner;
 - `Makefile`: build and run commands;
-- `data/diffusion_1m.csrpat`: default sparse input pattern;
+- `data/diffusion_1m.csrpat`: the sample matrix pattern;
 - `README.md`: this run guide.
 
 ## Input data
 
-The `.csrpat` files contain only the sparse pattern and deterministic generation
-metadata. Values for A are generated from a fixed seed, and b is constructed
-from a known exact solution. See
+The `.csrpat` files contain only the sparse pattern and fixed settings. The
+program builds A from a fixed seed and builds b from a known exact solution. See
 [`../PATTERN_FORMAT.md`](../PATTERN_FORMAT.md) for the binary layout.
 
-All 35 samples share the files under `../data/`. The matrix file in this
-directory is a relative symbolic link, so copying this directory elsewhere
-requires either copying the shared data directory or passing another matrix path
-to `sample`.
+All 35 samples share the files under `../data/`. The file in this `data/`
+directory links to that shared data. If you copy this sample, also copy the
+shared data or pass another matrix path to `sample`.
 
 ## Common problems
 
 - `XianzhiKrylovAPI.h: No such file or directory`: set `XK_ROOT` to the package
-  root when samples and library are stored separately.
-- `Missing library`: verify that `XK_ROOT/lib/libXianzhiKrylov.so` exists.
-- `init status=11` or `LICENSE_ERROR`: check that the license exists, is current,
+  root when this sample and the package are in different directories.
+- `Missing library`: check that `XK_ROOT/lib/libXianzhiKrylov.so` exists.
+- `init status=11` or `LICENSE_ERROR`: check that the license exists, is valid,
   and was issued for this GPU.
-- Backend is unsupported: use the `XK_BACKEND` number documented by the selected
-  package.
+- The backend is not supported: use the `XK_BACKEND` value listed in the selected
+  package README.
 - A vendor runtime `.so` is missing: pass its directory through
   `GPU_RUNTIME_LIB_DIR`:
 
@@ -145,7 +141,7 @@ to `sample`.
 make run XK_BACKEND=1 GPU_RUNTIME_LIB_DIR="/path/to/vendor/runtime/lib"
 ```
 
-- Source changes do not take effect: run `make clean` before rebuilding.
+- Source changes do not take effect: run `make clean` before you rebuild.
 
 See the [main Samples guide](../README.md) for prerequisites, license setup, and
 more detailed troubleshooting.
