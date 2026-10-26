@@ -34,6 +34,7 @@ int main(int argc, char **argv)
         rc = 1;
         goto done;
     }
+    /* HOST input is copied into library-owned GPU storage synchronously. */
     status = xianzhikrylov_set_system(
         handle, XIANZHIKRYLOV_STRUCTURE | XIANZHIKRYLOV_RHS,
         &binding.system);

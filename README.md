@@ -74,6 +74,26 @@ Each Makefile supports `CC`, `CFLAGS`, `CPPFLAGS`, `LDFLAGS`, `LDLIBS`,
 Use `make clean` before changing the package, backend, toolkit, or compiler
 flags. CMake is not required.
 
+## Data flow
+
+Each sample constructs `A` and `b` in ordinary CPU memory and marks their
+descriptors with `memory_space = XIANZHIKRYLOV_HOST` and `device_id = -1`.
+
+1. `xianzhikrylov_init` creates the handle and selects the GPU backend; it does
+   not receive matrix data.
+2. `xianzhikrylov_set_system` receives the host descriptors. The library
+   allocates its own GPU storage, copies the selected arrays, and synchronizes
+   before returning. The caller may release or reuse the host arrays after this
+   call.
+3. `xianzhikrylov_solve_prepare` and `xianzhikrylov_solve` use the
+   library-owned GPU copies.
+4. `xianzhikrylov_solution_download` copies the stored solution into the
+   caller's host buffer.
+
+The samples do not call vendor copy routines directly. Applications that
+already keep `A` or `b` in device memory may use
+`memory_space = XIANZHIKRYLOV_DEVICE` instead.
+
 ## Data and output
 
 The four million-order test systems are shared under `samples/data/`; each
@@ -99,10 +119,14 @@ generated with a positive diagonal, non-positive off-diagonal entries, and
 strict diagonal dominance. General models preserve a well-conditioned positive
 row sum.
 
-The binary values are generated before the library preparation call. BSR, MSR,
+The binary values are generated before `xianzhikrylov_set_system`. BSR, MSR,
 and LDU samples convert the generated CSR system explicitly. Each run validates
-the original equation on the host; file reading, value generation, conversion,
-download, and residual checking are outside the library timing.
+the original equation on the host.
+
+The host-to-device transfer performed by `xianzhikrylov_set_system` is not part
+of the preparation and solve time reported by `xianzhikrylov_print_info`.
+Applications that report complete end-to-end time should account for their own
+input preparation and the `set_system` call separately.
 
 See [`PATTERN_FORMAT.md`](PATTERN_FORMAT.md) for the `.csrpat` binary layout,
 fixed value-generation rules, and known solutions.

@@ -38,4 +38,4 @@ export LD_LIBRARY_PATH="/absolute/path/to/XianzhiKrylov/lib:/path/to/gpu/runtime
 该矩阵是一般系统，实际收敛仍取决于矩阵和预条件。
 
 程序会在 CPU 上使用原始矩阵独立检查 `r=b−Ax`。只有接口返回成功且残差满足样例检查时，
-进程才返回 0。文件读取、样例侧格式转换、解下载和残差检查不计入库的准备／求解时间。
+进程才返回 0。A 和 b 以 `XIANZHIKRYLOV_HOST` 描述符传给 `xianzhikrylov_set_system`，由库同步复制到 GPU。该调用返回后，库不再依赖调用方的 A、b CPU 缓冲区。`xianzhikrylov_print_info` 报告的准备／求解时间不包含这次上传；需要统计完整端到端时间时，应用应另行计入自己的数据准备和 `set_system` 调用。
