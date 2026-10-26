@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "matrix_format": "csr",
+  "matrix_symmetry": "spd",
+  "block_size": 1,
+  "solver": {
+    "method": "fcg",
+    "preconditioner": "ic0",
+    "max_iterations": 2000,
+    "relative_tolerance": 1e-9,
+    "absolute_tolerance": 0,
+    "initial_guess": "zero"
+  }
+}

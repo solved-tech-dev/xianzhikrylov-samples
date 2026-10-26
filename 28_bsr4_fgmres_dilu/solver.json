@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "matrix_format": "bsr",
+  "matrix_symmetry": "general",
+  "block_size": 4,
+  "solver": {
+    "method": "fgmres",
+    "preconditioner": "multicolor_block_dilu",
+    "max_iterations": 2000,
+    "restart": 40,
+    "relative_tolerance": 1e-9,
+    "absolute_tolerance": 0,
+    "initial_guess": "zero"
+  }
+}
+

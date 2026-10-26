@@ -1,0 +1,6 @@
+*/sample
+*.o
+*.d
+*.so
+license.key
+licenses/

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "matrix_format": "csr",
+  "matrix_symmetry": "general",
+  "block_size": 1,
+  "solver": {
+    "method": "fgmres",
+    "preconditioner": "jacobi",
+    "max_iterations": 2000,
+    "restart": 40,
+    "relative_tolerance": 1e-9,
+    "absolute_tolerance": 0,
+    "initial_guess": "zero"
+  }
+}
+
