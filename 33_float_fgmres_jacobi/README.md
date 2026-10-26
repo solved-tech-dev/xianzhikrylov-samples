@@ -2,7 +2,9 @@
 
 ## Purpose
 
-This sample shows how to solve `Ax=b` with **fgmres_fp32 / jacobi** using CSR matrix data in FP32.
+Solve one system `Ax=b` with **FGMRES and Jacobi**, using `float`
+arrays for A, b, and x. The sample uses one right-hand side.
+Use an NVIDIA or Hygon package.
 
 ## Build and Run
 
@@ -35,4 +37,4 @@ The program prints API status, convergence status, iteration count, method infor
 
 `PASS` and exit code `0` indicate that the returned solution satisfies the sample tolerance.
 
-See the [repository overview](../README.md), [product manual](../docs/XianzhiKrylov_Manual_26.44_CN.pdf), and [troubleshooting guide](../docs/TROUBLESHOOTING.md).
+See the [repository overview](../README.md), [product manual](../docs/XianzhiKrylov_Manual_26.44_EN.pdf), and [troubleshooting guide](../docs/TROUBLESHOOTING.md).

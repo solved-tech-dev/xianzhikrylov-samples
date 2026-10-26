@@ -1,7 +1,7 @@
 # Troubleshooting
 
 The complete API and configuration reference is in
-[XianzhiKrylov_Manual_26.44_CN.pdf](XianzhiKrylov_Manual_26.44_CN.pdf).
+[XianzhiKrylov_Manual_26.44_EN.pdf](XianzhiKrylov_Manual_26.44_EN.pdf).
 
 ## Does the package work on this machine?
 

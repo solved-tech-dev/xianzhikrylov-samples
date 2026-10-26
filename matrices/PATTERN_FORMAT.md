@@ -34,7 +34,7 @@ columns.
 | 1 | `diffusion_1m` | Symmetric SPD, strict diagonal dominance |
 | 2 | `transport_1m` | General nonsymmetric, positive row sums |
 | 3 | `coupled4_500k` | Symmetric block-oriented SPD, strict diagonal dominance |
-| 4 | `complex_262k_3rhs` | Complex, strictly diagonally dominant, three RHS |
+| 4 | `complex_262k` | Complex, strictly diagonally dominant, one RHS |
 
 ## Value generation
 
@@ -45,7 +45,7 @@ columns.
 - row and column indices;
 - a fixed salt.
 
-The result does not depend on time, the process, the CUDA device, or random
+The result does not depend on time, the process, the GPU, or random
 device state.
 
 For real symmetric models, a value is derived from the ordered pair
@@ -70,15 +70,17 @@ x_exact = 1
 b = A*x_exact
 ```
 
-For the complex three-RHS model:
+For the complex single-RHS model:
 
 ```text
-x_1 = 1 + 0i
-x_2 = 1 + 0.25i
-x_3 = 1 - 0.25i
-b_j = A*x_j
+x_exact = 1 + 0i
+b = A*x_exact
 ```
 
 The solver still starts from its configured initial guess, normally zero. The
 known solutions are used only to construct b and to understand the independent
 host-side residual checks.
+
+The separate double-precision sample `36_multiple_rhs_reuse` starts
+with `b`, `2*b`, and `3*b`. Its second solve halves each vector.
+The precision samples each use one right-hand side.

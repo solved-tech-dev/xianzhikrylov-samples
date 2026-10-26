@@ -1,4 +1,4 @@
-/* XianzhiKrylov sample 33: native FP32 FGMRES + Jacobi. */
+/* Solve one FP32 system with FGMRES and Jacobi. */
 #include "sample_common.h"
 #include <stdio.h>
 
@@ -64,10 +64,10 @@ int main(int argc, char **argv)
 
     if (!xk_matrix_load(&matrix, matrix_path))
         goto done;
-    if (matrix.h.scalar != 1 ||
+    if (matrix.h.scalar != 1 || matrix.h.rhs_count != 1 ||
         !xk_size_ok(matrix.h.entries, sizeof(float)) ||
         !xk_size_ok(matrix.h.rows * matrix.h.rhs_count, sizeof(float))) {
-        fprintf(stderr, "FP32 sample requires a real matrix\n");
+        fprintf(stderr, "This sample needs a real matrix and one RHS.\n");
         goto done;
     }
 
@@ -125,20 +125,16 @@ int main(int argc, char **argv)
         rc = 1;
         goto done;
     }
-    status = xianzhikrylov_multiple_vector_create(
-        &rhs_object, (int64_t)matrix.h.rows,
-        (int64_t)matrix.h.rhs_count, (int64_t)matrix.h.rows,
-        XIANZHIKRYLOV_RHS_MAJOR, rhs, NULL, XIANZHIKRYLOV_FP32,
+    status = xianzhikrylov_vector_create(
+        &rhs_object, (int64_t)matrix.h.rows, rhs, XIANZHIKRYLOV_FP32,
         XIANZHIKRYLOV_HOST);
     if (status != XIANZHIKRYLOV_SUCCESS) {
         fprintf(stderr, "rhs vector_create status=%d\n", (int)status);
         rc = 1;
         goto done;
     }
-    status = xianzhikrylov_multiple_vector_create(
-        &solution_object, (int64_t)matrix.h.rows,
-        (int64_t)matrix.h.rhs_count, (int64_t)matrix.h.rows,
-        XIANZHIKRYLOV_RHS_MAJOR, solution, NULL, XIANZHIKRYLOV_FP32,
+    status = xianzhikrylov_vector_create(
+        &solution_object, (int64_t)matrix.h.rows, solution, XIANZHIKRYLOV_FP32,
         XIANZHIKRYLOV_HOST);
     if (status != XIANZHIKRYLOV_SUCCESS) {
         fprintf(stderr, "solution vector_create status=%d\n", (int)status);

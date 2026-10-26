@@ -661,6 +661,7 @@ static inline int xk_binding_make(xk_binding *b, const xk_matrix *a,
                            uint32_t format, uint32_t block)
 {
     xianzhikrylov_input_buffer_t rhs_data;
+    xianzhikrylov_status_t status;
     if (!b || !a) return 0;
     memset(b, 0, sizeof(*b));
     if (format == XIANZHIKRYLOV_CSR) {
@@ -681,7 +682,7 @@ static inline int xk_binding_make(xk_binding *b, const xk_matrix *a,
     } else if (format == XIANZHIKRYLOV_LDU && block == 1) {
         if (!xk_convert_ldu(b, a)) return 0;
     } else {
-        fprintf(stderr, "Unsupported sample conversion\n");
+        fprintf(stderr, "Invalid matrix format for this sample\n");
         return 0;
     }
     rhs_data = a->h.scalar == 1 ?
@@ -692,12 +693,20 @@ static inline int xk_binding_make(xk_binding *b, const xk_matrix *a,
     if (xianzhikrylov_matrix_create(&b->matrix_object, &b->matrix) !=
         XIANZHIKRYLOV_SUCCESS)
         return 0;
-    if (xianzhikrylov_multiple_vector_create(
+    if (a->h.rhs_count == 1) {
+        status = xianzhikrylov_vector_create(
+            &b->rhs_object, (int64_t)a->h.rows,
+            (void *)(uintptr_t)rhs_data.data, a->h.scalar,
+            XIANZHIKRYLOV_HOST);
+    } else {
+        status = xianzhikrylov_multiple_vector_create(
             &b->rhs_object, (int64_t)a->h.rows,
             (int64_t)a->h.rhs_count, (int64_t)a->h.rows,
             XIANZHIKRYLOV_RHS_MAJOR,
             (void *)(uintptr_t)rhs_data.data, NULL, a->h.scalar,
-            XIANZHIKRYLOV_HOST) != XIANZHIKRYLOV_SUCCESS) {
+            XIANZHIKRYLOV_HOST);
+    }
+    if (status != XIANZHIKRYLOV_SUCCESS) {
         (void)xianzhikrylov_matrix_destroy(b->matrix_object);
         b->matrix_object = NULL;
         return 0;
@@ -708,6 +717,7 @@ static inline int xk_binding_make(xk_binding *b, const xk_matrix *a,
 static inline int xk_solution_init(xk_solution *x, const xk_matrix *a)
 {
     uint64_t count;
+    xianzhikrylov_status_t status;
     if (!x || !a) return 0;
     memset(x, 0, sizeof(*x));
     if (!xk_size_ok(a->h.rows * a->h.rhs_count,
@@ -723,13 +733,20 @@ static inline int xk_solution_init(xk_solution *x, const xk_matrix *a)
             (size_t)count, sizeof(xianzhikrylov_complex_t));
         if (!x->z) return 0;
     }
-    if (xianzhikrylov_multiple_vector_create(
+    if (a->h.rhs_count == 1) {
+        status = xianzhikrylov_vector_create(
+            &x->vector_object, (int64_t)a->h.rows,
+            a->h.scalar == 1 ? (void *)x->x : (void *)x->z,
+            a->h.scalar, XIANZHIKRYLOV_HOST);
+    } else {
+        status = xianzhikrylov_multiple_vector_create(
             &x->vector_object, (int64_t)a->h.rows,
             (int64_t)a->h.rhs_count, (int64_t)a->h.rows,
             XIANZHIKRYLOV_RHS_MAJOR,
             a->h.scalar == 1 ? (void *)x->x : (void *)x->z,
-            NULL, a->h.scalar, XIANZHIKRYLOV_HOST) !=
-        XIANZHIKRYLOV_SUCCESS) {
+            NULL, a->h.scalar, XIANZHIKRYLOV_HOST);
+    }
+    if (status != XIANZHIKRYLOV_SUCCESS) {
         free(x->x);
         free(x->z);
         memset(x, 0, sizeof(*x));

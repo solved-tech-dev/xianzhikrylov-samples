@@ -41,7 +41,9 @@ xianzhikrylov-samples/
 │
 ├── docs/
 │   ├── XianzhiKrylov_Manual_26.44_CN.pdf
-│   │                           # Product manual
+│   │                           # Chinese product manual
+│   ├── XianzhiKrylov_Manual_26.44_EN.pdf
+│   │                           # English product manual
 │   └── TROUBLESHOOTING.md      # Common build and runtime problems
 │
 ├── 01_cg/
@@ -152,11 +154,18 @@ make clean
 | [29_msr_bicgstab_jacobi](29_msr_bicgstab_jacobi/README.md) | bicgstab / jacobi | MSR | FP64 |
 | [30_ldu_pcg_dic](30_ldu_pcg_dic/README.md) | pcg / dic | LDU | FP64 |
 | [31_ldu_bicgstab_dilu](31_ldu_bicgstab_dilu/README.md) | bicgstab / dilu | LDU | FP64 |
-| [32_complex_batch3](32_complex_batch3/README.md) | fgmres_complex_batch | CSR | complex FP64 |
-| [33_float_fgmres_jacobi](33_float_fgmres_jacobi/README.md) | fgmres / jacobi | CSR | FP32 |
-| [34_float_complex_batch3](34_float_complex_batch3/README.md) | fgmres_complex_fp32_batch | CSR | complex FP32 |
-| [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES | CSR | Double-Double |
+| [32_complex_fgmres](32_complex_fgmres/README.md) | fgmres | CSR | complex FP64* |
+| [33_float_fgmres_jacobi](33_float_fgmres_jacobi/README.md) | fgmres / jacobi | CSR | FP32* |
+| [34_float_complex_fgmres](34_float_complex_fgmres/README.md) | fgmres | CSR | complex FP32* |
+| [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES | CSR | Double-Double* |
 | [36_multiple_rhs_reuse](36_multiple_rhs_reuse/README.md) | fgmres / ilu0; separate phases and reuse | CSR | FP64 |
+
+*Samples 32–35 use NVIDIA or Hygon packages and each solve one right-hand
+side. FP32 uses `float`; FP64 uses `double`. Complex numbers have a real
+and an imaginary part. Double-Double uses high and low `double` arrays.
+
+Multiple right-hand sides are shown separately in
+`36_multiple_rhs_reuse`, using `double` for A, b, and x.
 
 ### Sample Input
 
@@ -192,9 +201,9 @@ API status `1` means the solver reported convergence. Numerical correctness
 requires the independent residual to satisfy the documented tolerance. `PASS`
 and exit code `0` indicate that both checks succeeded.
 
-See [docs/XianzhiKrylov_Manual_26.44_CN.pdf](docs/XianzhiKrylov_Manual_26.44_CN.pdf)
-for the product overview, ten-function C API, execution phases, configuration
-fields, precision definitions, external AMG integration, and ownership rules.
+See the [English manual](docs/XianzhiKrylov_Manual_26.44_EN.pdf) or
+[Chinese manual](docs/XianzhiKrylov_Manual_26.44_CN.pdf) for installation,
+the C functions, matrix and vector arrays, configuration, and result checks.
 
 ## Troubleshooting
 
@@ -204,7 +213,7 @@ Common checks:
   `libraries/<package-name>/`, or set `LIBRARY_ROOT`;
 - license error: make sure `license.key` is in the selected package directory;
 - missing input: use this Git checkout or pass an explicit matrix path;
-- unsupported environment: use the package built for the target GPU and its
+- environment: use the package built for the target GPU and its
   required toolkit/runtime;
 - missing indirect runtime library: set `GPU_RUNTIME_LIB_DIR`;
 - no convergence: inspect `config.json`, the method support table, and the

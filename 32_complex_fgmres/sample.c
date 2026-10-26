@@ -1,10 +1,10 @@
-/* XianzhiKrylov sample 32_complex_batch3: fgmres_complex_batch / none. */
+/* Solve one complex FP64 system with FGMRES. */
 #include "sample_common.h"
 #include <stdio.h>
 
 int main(int argc, char **argv)
 {
-    const char *matrix_path = argc > 1 ? argv[1] : "../matrices/complex_262k_3rhs.csrpat";
+    const char *matrix_path = argc > 1 ? argv[1] : "../matrices/complex_262k.csrpat";
     const char *json_path = argc > 2 ? argv[2] : "config.json";
     xk_matrix matrix = {0};
     xk_binding binding = {0};
@@ -15,6 +15,10 @@ int main(int argc, char **argv)
 
     if (!xk_matrix_load(&matrix, matrix_path))
         goto done;
+    if (matrix.h.scalar != 2 || matrix.h.rhs_count != 1) {
+        fprintf(stderr, "This sample needs a complex matrix and one RHS.\n");
+        goto done;
+    }
     if (!xk_binding_make(&binding, &matrix, XIANZHIKRYLOV_CSR, 1)) {
         fprintf(stderr, "cannot prepare matrix format\n");
         goto done;

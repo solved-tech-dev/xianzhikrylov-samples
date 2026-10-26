@@ -1,4 +1,4 @@
-/* XianzhiKrylov sample 34: native complex FP32 FGMRES, three RHS. */
+/* Solve one complex FP32 system with FGMRES. */
 #include "sample_common.h"
 #include <stdio.h>
 
@@ -62,7 +62,7 @@ static int xk_verify_complex_float(
 int main(int argc, char **argv)
 {
     const char *matrix_path =
-        argc > 1 ? argv[1] : "../matrices/complex_262k_3rhs.csrpat";
+        argc > 1 ? argv[1] : "../matrices/complex_262k.csrpat";
     const char *json_path = argc > 2 ? argv[2] : "config.json";
     xk_matrix matrix = {0};
     xianzhikrylov_matrix_data_t matrix_data = {0};
@@ -79,12 +79,12 @@ int main(int argc, char **argv)
 
     if (!xk_matrix_load(&matrix, matrix_path))
         goto done;
-    if (matrix.h.scalar != 2 ||
+    if (matrix.h.scalar != 2 || matrix.h.rhs_count != 1 ||
         !xk_size_ok(matrix.h.entries,
                     sizeof(xianzhikrylov_complex_fp32_t)) ||
         !xk_size_ok(matrix.h.rows * matrix.h.rhs_count,
                     sizeof(xianzhikrylov_complex_fp32_t))) {
-        fprintf(stderr, "complex FP32 sample requires a complex matrix\n");
+        fprintf(stderr, "This sample needs a complex matrix and one RHS.\n");
         goto done;
     }
 
@@ -150,20 +150,16 @@ int main(int argc, char **argv)
         rc = 1;
         goto done;
     }
-    status = xianzhikrylov_multiple_vector_create(
-        &rhs_object, (int64_t)matrix.h.rows,
-        (int64_t)matrix.h.rhs_count, (int64_t)matrix.h.rows,
-        XIANZHIKRYLOV_RHS_MAJOR, rhs, NULL,
+    status = xianzhikrylov_vector_create(
+        &rhs_object, (int64_t)matrix.h.rows, rhs,
         XIANZHIKRYLOV_COMPLEX_FP32, XIANZHIKRYLOV_HOST);
     if (status != XIANZHIKRYLOV_SUCCESS) {
         fprintf(stderr, "rhs vector_create status=%d\n", (int)status);
         rc = 1;
         goto done;
     }
-    status = xianzhikrylov_multiple_vector_create(
-        &solution_object, (int64_t)matrix.h.rows,
-        (int64_t)matrix.h.rhs_count, (int64_t)matrix.h.rows,
-        XIANZHIKRYLOV_RHS_MAJOR, solution, NULL,
+    status = xianzhikrylov_vector_create(
+        &solution_object, (int64_t)matrix.h.rows, solution,
         XIANZHIKRYLOV_COMPLEX_FP32, XIANZHIKRYLOV_HOST);
     if (status != XIANZHIKRYLOV_SUCCESS) {
         fprintf(stderr, "solution vector_create status=%d\n", (int)status);

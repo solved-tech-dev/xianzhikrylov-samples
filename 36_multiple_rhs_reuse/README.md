@@ -3,6 +3,7 @@
 ## Purpose
 
 Solve three FP64 systems with the same CSR matrix using FGMRES and ILU(0).
+A, b, and x all use `double` arrays.
 The sample calls analysis, numeric preparation, and solve separately. It then
 changes only the right-hand sides and solves again without rebuilding the
 preconditioner.

@@ -2,7 +2,15 @@
 
 ## Purpose
 
-This sample shows how to solve `Ax=b` with **fgmres_dd** using CSR matrix data in Double-Double.
+Solve one system `Ax=b` with **DD-FGMRES**. A, b, and x each use
+high and low `double` arrays; their sums give the Double-Double values.
+Use an NVIDIA or Hygon package.
+
+This sample has one right-hand side. It uses
+`xianzhikrylov_multiple_vector_create()` with `rhs_count=1` to pass
+both the high and low arrays. See
+[36_multiple_rhs_reuse](../36_multiple_rhs_reuse/README.md) for the
+separate double-precision, multiple-right-hand-side example.
 
 ## Build and Run
 
@@ -35,4 +43,4 @@ The program prints API status, convergence status, iteration count, method infor
 
 `PASS` and exit code `0` indicate that the returned solution satisfies the sample tolerance.
 
-See the [repository overview](../README.md), [product manual](../docs/XianzhiKrylov_Manual_26.44_CN.pdf), and [troubleshooting guide](../docs/TROUBLESHOOTING.md).
+See the [repository overview](../README.md), [product manual](../docs/XianzhiKrylov_Manual_26.44_EN.pdf), and [troubleshooting guide](../docs/TROUBLESHOOTING.md).
