@@ -1,16 +1,18 @@
-# Sample Pattern Data
+# 样例矩阵数据
 
-| File | Rows | Stored entries | Model | RHS |
+| 文件 | 阶数 | 非零元数 | 模型编号 | 右端项个数 |
 | --- | ---: | ---: | ---: | ---: |
 | `diffusion_1m.csrpat` | 1,000,000 | 6,940,000 | 1 | 1 |
 | `transport_1m.csrpat` | 1,000,000 | 6,940,000 | 2 | 1 |
 | `coupled4_500k.csrpat` | 500,000 | 4,940,000 | 3 | 1 |
 | `complex_262k_3rhs.csrpat` | 262,144 | 1,810,432 | 4 | 3 |
 
-The files contain CSR sparsity patterns only. See
-[`../PATTERN_FORMAT.md`](../PATTERN_FORMAT.md) for the binary layout and value
-generation rules.
+这些文件只保存 CSR 矩阵的稀疏模式，不保存矩阵 A 的数值和右端向量 b。
+二进制结构和数值生成规则见
+[`../PATTERN_FORMAT.md`](../PATTERN_FORMAT.md)。
 
-Each sample directory has a relative link to its default pattern file. The
-links resolve inside this repository and avoid duplicating the large patterns
-32 times.
+每个样例目录的 `data/` 中包含一个指向这里某个文件的相对链接。32 个样例共用这些
+数据，避免重复保存几十兆的相同文件。
+
+解压 `.tar.gz` 时会保留这些链接。如果使用会丢失符号链接的 ZIP 工具，请改用 Git
+仓库或原始 `.tar.gz`，也可以在运行样例时直接传入矩阵文件的绝对路径。
