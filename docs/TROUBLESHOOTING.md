@@ -1,5 +1,8 @@
 # Troubleshooting
 
+The complete API and configuration reference is in
+[XianzhiKrylov_Manual_26.44_CN.pdf](XianzhiKrylov_Manual_26.44_CN.pdf).
+
 ## Does the package work on this machine?
 
 Check these items in the package README:

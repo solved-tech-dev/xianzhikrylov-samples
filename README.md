@@ -40,7 +40,8 @@ xianzhikrylov-samples/
 │   └── ...
 │
 ├── docs/
-│   ├── PRODUCT_GUIDE.md        # C API and configuration guide
+│   ├── XianzhiKrylov_Manual_26.44_CN.pdf
+│   │                           # Product manual
 │   └── TROUBLESHOOTING.md      # Common build and runtime problems
 │
 ├── 01_cg/
@@ -185,9 +186,9 @@ API status `1` means the solver reported convergence. Numerical correctness
 requires the independent residual to satisfy the documented tolerance. `PASS`
 and exit code `0` indicate that both checks succeeded.
 
-See [docs/PRODUCT_GUIDE.md](docs/PRODUCT_GUIDE.md) for the product overview,
-ten-function C API, execution phases, configuration fields, precision
-definitions, external AMG integration, and ownership rules.
+See [docs/XianzhiKrylov_Manual_26.44_CN.pdf](docs/XianzhiKrylov_Manual_26.44_CN.pdf)
+for the product overview, ten-function C API, execution phases, configuration
+fields, precision definitions, external AMG integration, and ownership rules.
 
 ## Troubleshooting
 

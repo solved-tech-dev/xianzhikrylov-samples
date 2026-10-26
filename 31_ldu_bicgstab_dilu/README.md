@@ -35,4 +35,4 @@ The program prints API status, convergence status, iteration count, method infor
 
 `PASS` and exit code `0` indicate that the returned solution satisfies the sample tolerance.
 
-See the [repository overview](../README.md), [product guide](../docs/PRODUCT_GUIDE.md), and [troubleshooting guide](../docs/TROUBLESHOOTING.md).
+See the [repository overview](../README.md), [product manual](../docs/XianzhiKrylov_Manual_26.44_CN.pdf), and [troubleshooting guide](../docs/TROUBLESHOOTING.md).
