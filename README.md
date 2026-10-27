@@ -157,8 +157,8 @@ make clean
 | [32_complex_fgmres](32_complex_fgmres/README.md) | fgmres | CSR | complex FP64* |
 | [33_float_fgmres_jacobi](33_float_fgmres_jacobi/README.md) | fgmres / jacobi | CSR | FP32* |
 | [34_float_complex_fgmres](34_float_complex_fgmres/README.md) | fgmres | CSR | complex FP32* |
-| [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES | CSR | Double-Double* |
-| [36_multiple_rhs_reuse](36_multiple_rhs_reuse/README.md) | fgmres / ilu0; separate phases and reuse | CSR | FP64 |
+| [35_dd_fgmres](35_dd_fgmres/README.md) | fgmres | CSR | Double-Double* |
+| [36_multiple_rhs_reuse](36_multiple_rhs_reuse/README.md) | fgmres / ilu0 | CSR | FP64 |
 
 *FP32 uses `float`; FP64 uses `double`. Complex numbers have a real
 and an imaginary part. Double-Double uses high and low `double` arrays.
