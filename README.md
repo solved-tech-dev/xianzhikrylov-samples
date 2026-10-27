@@ -9,7 +9,7 @@ with `config.json`, create matrix and vector objects, execute `Ax=b`, and
 verify the original-system residual.
 
 The samples cover common iterative methods, preconditioners, sparse matrix
-formats, multiple right-hand sides, and several data precisions.
+formats, and several data precisions.
 
 You can download library packages and licenses from
 <https://store.solved-tech.com/>.
@@ -160,12 +160,8 @@ make clean
 | [35_dd_fgmres](35_dd_fgmres/README.md) | DD-FGMRES | CSR | Double-Double* |
 | [36_multiple_rhs_reuse](36_multiple_rhs_reuse/README.md) | fgmres / ilu0; separate phases and reuse | CSR | FP64 |
 
-*Samples 32–35 use NVIDIA or Hygon packages and each solve one right-hand
-side. FP32 uses `float`; FP64 uses `double`. Complex numbers have a real
+*FP32 uses `float`; FP64 uses `double`. Complex numbers have a real
 and an imaginary part. Double-Double uses high and low `double` arrays.
-
-Multiple right-hand sides are shown separately in
-`36_multiple_rhs_reuse`, using `double` for A, b, and x.
 
 ### Sample Input
 
