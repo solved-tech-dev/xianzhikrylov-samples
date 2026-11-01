@@ -40,9 +40,9 @@ xianzhikrylov-samples/
 │   └── ...
 │
 ├── docs/
-│   ├── XianzhiKrylov_Manual_26.44_CN.pdf
+│   ├── XianzhiKrylov_Manual_26.45_CN.pdf
 │   │                           # Chinese product manual
-│   ├── XianzhiKrylov_Manual_26.44_EN.pdf
+│   ├── XianzhiKrylov_Manual_26.45_EN.pdf
 │   │                           # English product manual
 │   └── TROUBLESHOOTING.md      # Common build and runtime problems
 │
@@ -197,8 +197,8 @@ API status `1` means the solver reported convergence. Numerical correctness
 requires the independent residual to satisfy the documented tolerance. `PASS`
 and exit code `0` indicate that both checks succeeded.
 
-See the [English manual](docs/XianzhiKrylov_Manual_26.44_EN.pdf) or
-[Chinese manual](docs/XianzhiKrylov_Manual_26.44_CN.pdf) for installation,
+See the [English manual](docs/XianzhiKrylov_Manual_26.45_EN.pdf) or
+[Chinese manual](docs/XianzhiKrylov_Manual_26.45_CN.pdf) for installation,
 the C functions, matrix and vector arrays, configuration, and result checks.
 
 ## Troubleshooting
