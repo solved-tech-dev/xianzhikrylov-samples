@@ -43,4 +43,4 @@ The program prints API status, convergence status, iteration count, method infor
 `PASS` and exit code `0` mean that the maximum absolute residual
 component is less than `1e-8`.
 
-See the [repository overview](../README.md), [product manual](../docs/XianzhiKrylov_Manual_26.44_EN.pdf), and [troubleshooting guide](../docs/TROUBLESHOOTING.md).
+See the [repository overview](../README.md), [product manual](../docs/XianzhiKrylov_Manual_26.45_EN.pdf), and [troubleshooting guide](../docs/TROUBLESHOOTING.md).
