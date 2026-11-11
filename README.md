@@ -78,6 +78,22 @@ directory also include a compatible C runtime. The sample `make run`
 commands use that runtime automatically when the host glibc is older than the
 library requirement.
 
+For a custom executable, start the process through the package runner:
+
+```bash
+./libraries/<package-name>/compat/run ./your-program
+```
+
+For an MPI application, start every application rank through the runner:
+
+```bash
+mpiexec -n N ./libraries/<package-name>/compat/run ./your-program
+```
+
+The runner selects the compatibility runtime before the program starts. It
+cannot replace glibc inside a Python, JVM, MPI rank, or other process that has
+already started.
+
 ### Library Package and License
 
 Download a package and license from

@@ -95,6 +95,16 @@ source /path/to/toolkit/env.sh
 ./libraries/<package-name>/compat/run ./your-program
 ```
 
+For an MPI application, wrap every application rank:
+
+```bash
+mpiexec -n N ./libraries/<package-name>/compat/run ./your-program
+```
+
+The runner must start each process that loads XianzhiKrylov. It cannot change
+glibc in a process that is already running. If the package does not provide a
+compatible runner, use a package built for the host glibc baseline.
+
 The toolkit setup remains necessary because XianzhiKrylov loads the GPU vendor
 libraries from the installed toolkit.
 
