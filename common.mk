@@ -50,7 +50,7 @@ run: all
 	      'Missing license: $(LIBRARY_ROOT)/license.key' \
 	      'Download the package and license from https://store.solved-tech.com/.' >&2; exit 1; }
 	LD_LIBRARY_PATH="$(LIBRARY_ROOT)/lib$(if $(GPU_RUNTIME_LIB_DIR),:$(GPU_RUNTIME_LIB_DIR),)$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" \
-	    $(RUNNER) ./$(TARGET) $(RUN_ARGS)
+	    $(if $(RUNNER),"$(RUNNER)") ./$(TARGET) $(RUN_ARGS)
 
 clean:
 	$(RM) $(TARGET)
