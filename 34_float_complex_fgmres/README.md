@@ -44,4 +44,4 @@ The program prints API status, convergence status, iteration count, method infor
 L2 residual is at most `1e-4`. The solver uses the stricter `1e-5`
 relative tolerance in `config.json`.
 
-See the [repository overview](../README.md), [product manual](../docs/XianzhiKrylov_Manual_26.45_EN.pdf), and [troubleshooting guide](../docs/TROUBLESHOOTING.md).
+See the [repository overview](../README.md), [product manual](../docs/XianzhiKrylov_Manual_26.46_EN.pdf), and [troubleshooting guide](../docs/TROUBLESHOOTING.md).
