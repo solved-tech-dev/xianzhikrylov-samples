@@ -23,3 +23,7 @@ Library binaries and license files are not tracked by Git. Download the package
 and its matching license from
 [Solved Tech](https://store.solved-tech.com/) and keep the extracted package
 intact, including any architecture subdirectories it contains.
+
+If the package contains `compat/run`, the sample build rules use that runner
+automatically. It checks the host glibc version and uses the packaged
+compatible runtime only when it is needed.

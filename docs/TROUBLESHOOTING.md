@@ -10,13 +10,19 @@ Check these items in the package README:
 | Item | What to check |
 | --- | --- |
 | CPU | The package supports your CPU architecture, for example `x86_64`. |
-| Linux C library | The package supports your glibc version. |
+| Linux C library | The package supports your glibc version, or includes a compatible runtime. |
 | GPU | The package lists your GPU model and compiled GPU target. |
 | GPU platform | The package is built for the installed GPU and its required vendor toolkit/runtime. |
 | Runtime environment | The installed toolkit/runtime matches the selected package. |
 
 GPU driver installation and driver selection are outside this repository. Use
 the driver supplied by the target system or cluster provider.
+
+Check the C library version:
+
+```bash
+getconf GNU_LIBC_VERSION
+```
 
 ## `cc` or `make` is missing
 
@@ -75,6 +81,22 @@ make run GPU_RUNTIME_LIB_DIR="$GPU_RUNTIME_LIB_DIR"
 ```
 
 Do not copy a `.so` file from a package built for another vendor.
+
+## `GLIBC_2.xx not found`
+
+The library was built for a newer C library than the host provides. Packages
+that contain `compat/run` include the matching runtime and the sample `make run`
+commands select it automatically.
+
+If you launch a custom executable while using such a package:
+
+```bash
+source /path/to/toolkit/env.sh
+./libraries/<package-name>/compat/run ./your-program
+```
+
+The toolkit setup remains necessary because XianzhiKrylov loads the GPU vendor
+libraries from the installed toolkit.
 
 ## `config_set status=11` or `LICENSE_ERROR`
 

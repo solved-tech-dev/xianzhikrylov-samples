@@ -4,6 +4,7 @@ New features:
 - Improved result writeback and nonzero-initial-guess handling for complex batched solves.
 - Optimized device-memory management when GPU matrices are supplied directly.
 - Updated authentication for container environments where mapped UIDs change the reported owner of driver files.
+- Added a compatibility runtime for hosts with older glibc versions.
 - Preserved the existing C API and binary compatibility.
 
 Performance improvements:

@@ -8,6 +8,7 @@ CFLAGS ?= -O3 -std=c11 -Wall -Wextra -Wno-enum-compare
 GPU_RUNTIME_LIB_DIR ?=
 CONFIG_FILE ?= config.json
 TARGET ?= sample
+RUNNER ?= $(if $(wildcard $(LIBRARY_ROOT)/compat/run),$(LIBRARY_ROOT)/compat/run)
 
 # Use libraries/<package-name>/ when present. A samples directory placed inside
 # an extracted package still defaults to that package root.
@@ -49,7 +50,7 @@ run: all
 	      'Missing license: $(LIBRARY_ROOT)/license.key' \
 	      'Download the package and license from https://store.solved-tech.com/.' >&2; exit 1; }
 	LD_LIBRARY_PATH="$(LIBRARY_ROOT)/lib$(if $(GPU_RUNTIME_LIB_DIR),:$(GPU_RUNTIME_LIB_DIR),)$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" \
-	    ./$(TARGET) $(RUN_ARGS)
+	    $(RUNNER) ./$(TARGET) $(RUN_ARGS)
 
 clean:
 	$(RM) $(TARGET)

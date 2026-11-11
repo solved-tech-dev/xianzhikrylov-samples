@@ -67,6 +67,17 @@ xianzhikrylov-samples/
 - the GPU and the toolkit/runtime required by the selected package;
 - a C compiler and GNU Make.
 
+Check the system C library before choosing a package:
+
+```bash
+getconf GNU_LIBC_VERSION
+```
+
+The package name states its minimum glibc version. Packages with a `compat/`
+directory also include a compatible C runtime. The sample `make run`
+commands use that runtime automatically when the host glibc is older than the
+library requirement.
+
 ### Library Package and License
 
 Download a package and license from
@@ -88,6 +99,11 @@ Keep `license.key` in the same package directory.
 ```text
 libraries/*/include/XianzhiKrylovAPI.h
 ```
+
+Load the vendor toolkit before running a sample. For example, use the
+environment setup supplied with the package's stated toolkit version. The
+sample runner adds the package library and any bundled compatibility runtime
+to the process automatically.
 
 ### Build and Run
 
