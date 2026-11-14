@@ -1,13 +1,14 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "matrix_format": "csr",
   "block_size": 1,
   "solver": {
     "method": "bicg",
     "preconditioner": "ilu0",
     "max_iterations": 2000,
-    "relative_tolerance": 1e-9,
+    "relative_tolerance": 1e-09,
     "absolute_tolerance": 0,
-    "initial_guess": "zero"
+    "initial_guess": "zero",
+    "level": 0
   }
 }

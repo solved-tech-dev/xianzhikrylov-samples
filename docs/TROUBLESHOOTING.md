@@ -148,3 +148,7 @@ Run a clean rebuild:
 make clean
 make
 ```
+
+## Staged calls in 26.46
+
+For staged calls, pass NULL vectors during analysis and numeric preparation. After changing coefficients call NUMERIC_PREPARE; after changing sparsity call ANALYSIS then NUMERIC_PREPARE. Recreate descriptors if dimensions, addresses or layouts change. See sample 37 for executable code.

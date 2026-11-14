@@ -1,11 +1,8 @@
-# XianzhiKrylov 26.46 (Hygon)
+# XianzhiKrylov 26.46 CUDA release notes
 
-New features:
-- Improved result writeback and nonzero-initial-guess handling for complex batched solves.
-- Optimized device-memory management when GPU matrices are supplied directly.
-- Updated authentication for container environments where mapped UIDs change the reported owner of driver files.
-- Added a compatibility runtime for hosts with older glibc versions.
-- Preserved the existing C API and binary compatibility.
-
-Performance improvements:
-- Improved solve efficiency for block-Jacobi preconditioning, high-precision FGMRES, complex multiple-right-hand-side solves, and solves that use LinglongAMG as a preconditioner.
+- Add JSON v2 for solver, preconditioner and Level selection; retain JSON v1 compatibility.
+- Default omitted ordinary FP64 relative tolerance to 1e-6; preserve explicit tolerances.
+- Reduce overhead in selected CG, FCG, BiCG, DILU, MSR and IC0 routes, incorporating SDK staging and exact triangular-solve improvements. Performance depends on the matrix and execution environment.
+- Fix premature numerical failure during staged CG/Jacobi analysis; preserve the public API and ABI.
+- Update bilingual manuals with CUDA versions, SM/PTX compilation targets and staged data-update guidance.
+- Provide independent Samples with JSON v2, v1 migration configurations and staged CG/Jacobi updates for RHS, coefficients and sparsity.

@@ -14,6 +14,16 @@ formats, and several data precisions.
 You can download library packages and licenses from
 <https://store.solved-tech.com/>.
 
+## JSON configuration
+
+New FP64 configurations use `schema_version: 2`: select `solver.method`,
+`solver.preconditioner`, and an optional `solver.level`. Existing v1 files remain
+compatible. ILU0 Level 0 selects exact triangular application, Level 1 two
+approximate sweeps per direction, and Level 2 four sweeps per direction.
+Supported FGMRES/GMRES/BiCGStab/GCR ILU0 pairs default to Level 2; BiCG ILU0
+supports exact Level 0. ParILU is a separate preconditioner. The relative
+tolerance defaults to `1e-6` when omitted; most samples keep explicit validation tolerances; sample 37 demonstrates the omitted default.
+
 ## Repository Layout
 
 ```text
@@ -193,6 +203,7 @@ make clean
 | [34_float_complex_fgmres](34_float_complex_fgmres/README.md) | fgmres | CSR | complex FP32* |
 | [35_dd_fgmres](35_dd_fgmres/README.md) | fgmres | CSR | Double-Double* |
 | [36_multiple_rhs_reuse](36_multiple_rhs_reuse/README.md) | fgmres / ilu0 | CSR | FP64 |
+| [37_cg_jacobi_staged](37_cg_jacobi_staged/README.md) | cg / jacobi, staged updates | CSR | FP64 |
 
 *FP32 uses `float`; FP64 uses `double`. Complex numbers have a real
 and an imaginary part. Double-Double uses high and low `double` arrays.
@@ -250,3 +261,7 @@ Common checks:
   independent residual.
 
 See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for detailed steps.
+
+## Version 26.46
+
+See [migration and configuration guidance](docs/MIGRATION_26_46.md). [37_cg_jacobi_staged](37_cg_jacobi_staged/README.md) demonstrates staged CG/Jacobi and RHS, coefficient and sparsity updates.

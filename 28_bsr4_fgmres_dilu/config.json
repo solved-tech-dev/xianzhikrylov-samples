@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "matrix_format": "bsr",
   "block_size": 4,
   "solver": {
@@ -7,9 +7,8 @@
     "preconditioner": "multicolor_block_dilu",
     "max_iterations": 2000,
     "restart": 40,
-    "relative_tolerance": 1e-9,
+    "relative_tolerance": 1e-09,
     "absolute_tolerance": 0,
     "initial_guess": "zero"
   }
 }
-
