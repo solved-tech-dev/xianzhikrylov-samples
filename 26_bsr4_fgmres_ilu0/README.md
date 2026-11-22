@@ -4,8 +4,7 @@
 
 This sample shows how to solve `Ax=b` with **fgmres / ilu0** using BSR4 matrix data in FP64.
 
-The configuration builds block ILU(0) factors and uses four Jacobi sweeps to
-apply each triangular factor. The same settings are used on all platforms.
+The configuration uses block ILU(0). The same settings are used on all platforms.
 
 ## Build and Run
 

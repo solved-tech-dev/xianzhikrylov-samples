@@ -18,10 +18,10 @@ You can download library packages and licenses from
 
 New FP64 configurations use `schema_version: 2`: select `solver.method`,
 `solver.preconditioner`, and an optional `solver.level`. Existing v1 files remain
-compatible. ILU0 Level 0 selects exact triangular application, Level 1 two
-approximate sweeps per direction, and Level 2 four sweeps per direction.
+compatible. ILU0 offers multiple Levels. L0 favors preconditioner accuracy
+and L1 favors speed. All Levels use the configured convergence tolerance.
 Supported FGMRES/GMRES/BiCGStab/GCR ILU0 pairs default to Level 2; BiCG ILU0
-supports exact Level 0. ParILU is a separate preconditioner. The relative
+supports only Level 0. ParILU is a separate preconditioner. The relative
 tolerance defaults to `1e-6` when omitted; most samples keep explicit validation tolerances; sample 37 demonstrates the omitted default.
 
 ## Repository Layout
