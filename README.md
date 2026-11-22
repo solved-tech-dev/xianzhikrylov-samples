@@ -20,9 +20,28 @@ New FP64 configurations use `schema_version: 2`: select `solver.method`,
 `solver.preconditioner`, and an optional `solver.level`. Existing v1 files remain
 compatible. ILU0 offers multiple Levels. L0 favors preconditioner accuracy
 and L1 favors speed. All Levels use the configured convergence tolerance.
-Supported FGMRES/GMRES/BiCGStab/GCR ILU0 pairs default to Level 2; BiCG ILU0
-supports only Level 0. ParILU is a separate preconditioner. The relative
-tolerance defaults to `1e-6` when omitted; most samples keep explicit validation tolerances; sample 37 demonstrates the omitted default.
+For CSR, supported FGMRES/GMRES/BiCGStab/GCR ILU0 pairs default to Level 2.
+BiCG ILU0 uses Level 0. ParILU is a separate preconditioner. The relative
+tolerance defaults to `1e-6` when omitted. Most samples keep explicit
+validation tolerances. Sample 37 demonstrates the omitted default.
+
+### Converting JSON configurations for CUDA 26.44 or 26.45
+
+The CUDA 26.44 and 26.45 SDKs read JSON v1. Convert a supported FP64
+configuration with Python 3 and select the installed library version.
+
+```bash
+python3 tools/convert_json_v2_to_v1.py 26_bsr4_fgmres_ilu0/config.json \
+  --target 26.44 -o bsr4-v1.json
+make -C 26_bsr4_fgmres_ilu0 run CONFIG_FILE=../bsr4-v1.json \
+  LIBRARY_ROOT=/path/to/extracted-26.44-package
+```
+
+Pass `--matrix-format` when the input uses an automatic format and
+`--block-size` when a BSR or MSR configuration omits its block size.
+The converter preserves the supported solver and preconditioner settings,
+including the effective ILU(0) Level. It reports settings for which the target
+library has no equivalent, such as BSR3.
 
 ## Repository Layout
 
