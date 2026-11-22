@@ -59,7 +59,6 @@ xianzhikrylov-samples/
 │   └── <package-name>/
 │       ├── include/
 │       ├── lib/
-│       ├── license.key
 │       └── ...
 │
 ├── matrices/
@@ -133,11 +132,24 @@ libraries/
 └── <package-name>/
     ├── include/
     ├── lib/
-    ├── license.key
     └── ...
 ```
 
-Keep `license.key` in the same package directory.
+With the CUDA 26.48 SDK, place your downloaded license in one of these locations:
+
+- `~/.solved-tech/xianzhikrylov/*.key` for your own account.
+- `/etc/solved-tech/xianzhikrylov/*.key` for a system-wide installation managed by an administrator.
+- `license.key` or `licenses/*.key` in the extracted SDK root for compatibility.
+
+For a per-user installation, replace `YOUR_LICENSE.key` with the actual file and run:
+
+```bash
+install -d -m 700 "$HOME/.solved-tech/xianzhikrylov"
+install -m 600 YOUR_LICENSE.key "$HOME/.solved-tech/xianzhikrylov/YOUR_LICENSE.key"
+```
+
+For older SDKs, use the package-local installation described in the manual
+shipped with your package.
 
 `common.mk` automatically uses the package containing:
 
@@ -271,7 +283,7 @@ Common checks:
 
 - missing header or library: make sure the selected package is under
   `libraries/<package-name>/`, or set `LIBRARY_ROOT`;
-- license error: make sure `license.key` is in the selected package directory;
+- license error: check the [license placement](#library-package-and-license) and the key for your package and GPU;
 - missing input: use this Git checkout or pass an explicit matrix path;
 - environment: use the package built for the target GPU and its
   required toolkit/runtime;

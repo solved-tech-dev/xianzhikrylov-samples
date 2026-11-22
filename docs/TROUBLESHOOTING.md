@@ -112,7 +112,7 @@ libraries from the installed toolkit.
 
 The license check failed. Check:
 
-- `license.key` is in the selected package directory;
+- the key is in a location supported by the selected SDK. See [license placement](../README.md#library-package-and-license);
 - the package and license were downloaded from
   <https://store.solved-tech.com/>;
 - the license is still valid;

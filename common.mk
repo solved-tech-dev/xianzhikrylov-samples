@@ -45,10 +45,6 @@ $(TARGET): sample.c $(REPO_ROOT)/common/sample_common.h | check
 	$(CC) $(CPPFLAGS) $(CFLAGS) sample.c -o $@ $(LDFLAGS) $(LDLIBS)
 
 run: all
-	@test -f "$(LIBRARY_ROOT)/license.key" || { \
-	    printf '%s\n' \
-	      'Missing license: $(LIBRARY_ROOT)/license.key' \
-	      'Download the package and license from https://store.solved-tech.com/.' >&2; exit 1; }
 	LD_LIBRARY_PATH="$(LIBRARY_ROOT)/lib$(if $(GPU_RUNTIME_LIB_DIR),:$(GPU_RUNTIME_LIB_DIR),)$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" \
 	    $(if $(RUNNER),"$(RUNNER)") ./$(TARGET) $(RUN_ARGS)
 

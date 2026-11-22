@@ -6,3 +6,6 @@ libraries/*
 !libraries/README.md
 # Per-toolkit local build outputs
 sample-cuda*
+# Downloaded license files and revocation lists
+*.key
+*.key.crl
